@@ -1,6 +1,7 @@
 export interface ProductImageDTO {
   id: string;
   url: string;
+  type: string;
 }
 
 export interface ProductDTO {
