@@ -11,8 +11,8 @@
       </div>
       <div class="product-info-container">
         <h1>{{ product?.name }}</h1>
-        <p>R$ {{ product?.price }}</p>
-        <button>Adicionar ao carrinho</button>
+        <p>R$ {{ product?.price }}, valor de referência para <br> peça padrão de 10cm</p>
+        <button class="button">Adicionar ao carrinho</button>
       </div>
     </div>
     <div class="description-section">
@@ -28,18 +28,21 @@
     </div>
   </div>
 </template>
-
+        <div class="model-wrapper">
+          <ModelViewer :modelPath=modelPath class="modal-content"/>
+        </div>
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { productService } from '../services/productService';
 import type { ProductDTO } from '../dtos/productDto';
 import ProductImageCarousel from '../components/ProductImageCarousel.vue';
+import ModelViewer from '../components/threejs/ModelViewer.vue';
 
 const route = useRoute();
 const product = ref<ProductDTO | null>(null);
 const products = ref<ProductDTO[]>([]);
-
+const modelPath = "/models/hamster.stl"
 onMounted(async () => {
   const id = route.params.id as string;
   const fetchedProduct = await productService.getById(id);
@@ -67,7 +70,7 @@ onMounted(async () => {
   margin-left: 15%;
   margin-right: 15%;
   display: flex;
-  gap: 2rem;
+  gap: 8rem;
   align-items: center;
 }
 
@@ -91,6 +94,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: center;
+  border: 2px solid #AFB1B6;
 }
 
 .main-image-img {
@@ -126,10 +130,11 @@ onMounted(async () => {
   border-radius: 6px;
   flex-shrink: 0;
   transition: transform 0.2s;
+  border: 2px solid #AFB1B6;
 }
 
 .secondary-image:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
 }
 
 .product-info-container {
@@ -140,8 +145,17 @@ onMounted(async () => {
   margin-right: 30px;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
+  align-items: flex-start;
+
+  h1 {
+    margin: 0px 0;
+  }
+  p {
+    margin: 0;
+  }
+  button {
+    margin-top: 64px;
+  }
 }
 
 .product-description {
@@ -204,5 +218,31 @@ onMounted(async () => {
   margin-top: 8px;
   font-size: 14px;
   color: #333;
+}
+
+.button {
+  padding: 16px 32px;
+  border-radius: 10px;
+  border: none;
+  background-color: #ADADAD;
+  font-weight: 400;
+  font-size: 24px;
+  letter-spacing: 1%;
+  line-height: 24px;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.1s ease;
+}
+
+.button:hover {
+  transform: scale(1.05);
+  background-color: #999999;
+}
+
+.model-wrapper {
+  width: 30vw;
+  height: 30vh;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  overflow: hidden;
 }
 </style>

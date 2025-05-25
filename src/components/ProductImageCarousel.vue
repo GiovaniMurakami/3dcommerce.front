@@ -30,12 +30,16 @@ function goToProduct(id: string) {
 <style scoped>
 .product-scroll-container {
   display: flex;
+  width: 80vw;
+  height: 28vh;
   gap: 1rem;
   overflow-x: auto;
+  overflow-y: hidden;
   padding: 1rem 0;
   scrollbar-width: thin;
   scrollbar-color: #ccc transparent;
   cursor: pointer;
+  gap: 36px;
 }
 
 .product-scroll-container::-webkit-scrollbar {
@@ -66,6 +70,7 @@ function goToProduct(id: string) {
   aspect-ratio: 1/1;
   object-fit: cover;
   border-radius: 4px;
+  height: 100%;
 }
 
 .product-item p {
