@@ -25,6 +25,7 @@ const router = useRouter();
 function goToProduct(id: string) {
   router.push(`/products/${id}`);
 }
+
 </script>
 
 <style scoped>
@@ -59,6 +60,9 @@ function goToProduct(id: string) {
   padding: 8px;
   text-align: center;
   transition: transform 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .product-item:hover {

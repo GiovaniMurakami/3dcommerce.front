@@ -18,8 +18,9 @@ export const productService = {
       createdBy: '123e4567-e89b-12d3-a456-426614174000',
       categoryId: '456e4567-e89b-12d3-a456-426614174000',
       productImages: [
-        { id: '1', url: 'https://www.alleycat.org/wp-content/uploads/2019/03/FELV-cat.jpg', type: 'main' },
-        { id: '2', url: 'https://cdn.pixabay.com/photo/2024/02/28/07/42/european-shorthair-8601492_640.jpg', type: 'secondary' }
+        { id: '1', url: '/images/axolot1.png', type: 'main' },
+        { id: '2', url: '/images/axolot2.png', type: 'secondary' },
+        { id: '3', url: '/images/axolot3.png', type: 'secondary' }
       ]
     });
   }

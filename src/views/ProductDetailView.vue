@@ -11,18 +11,22 @@
       </div>
       <div class="product-info-container">
         <h1>{{ product?.name }}</h1>
-        <p>R$ {{ product?.price }}, valor de referência para <br> peça padrão de 10cm</p>
+        <p>R$ {{ product?.price }}, valor aproximado para <br> peça de 15cm</p>
         <button class="button">Adicionar ao carrinho</button>
       </div>
     </div>
     <div class="description-section">
       <hr class="divider" />
       <div class="product-description">
+        <div class="medium-title">
+          <img src="/icons/note-text.svg" alt="Ícone" class="description-icon" />
+          Descrição do produto
+        </div>
         <p>{{ product?.description }}</p>
       </div>
       <div class="another-products-section">
         <hr class="divider" />
-        <h1>Outros produtos</h1>
+        <div class="small-title">Outros produtos</div>
         <ProductImageCarousel :products="products" />
       </div>
     </div>
@@ -40,7 +44,7 @@ import ModelViewer from '../components/threejs/ModelViewer.vue';
 const route = useRoute();
 const product = ref<ProductDTO | null>(null);
 const products = ref<ProductDTO[]>([]);
-const modelPath = "/models/hamster.stl"
+const modelPath = "/models/axolot.stl"
 onMounted(async () => {
   const id = route.params.id as string;
   const fetchedProduct = await productService.getById(id);
@@ -123,7 +127,6 @@ onMounted(async () => {
 
 .secondary-image {
   width: 30%;
-  height: 30%;
   object-fit: cover;
   border-radius: 6px;
   flex-shrink: 0;
@@ -154,6 +157,32 @@ onMounted(async () => {
   button {
     margin-top: 64px;
   }
+}
+
+.medium-title {
+  font-size: 28px;
+  background-color: #ADADAD;
+  border-radius: 12px;
+  padding: 0 16px;
+  width: fit-content;
+  margin-bottom: 22px;
+  align-items: center;
+  display: flex;
+}
+
+.description-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+}
+
+.small-title {
+  font-size: 24px;
+  background-color: #ADADAD;
+  border-radius: 12px;
+  padding: 0 16px;
+  width: fit-content;
+  align-items: center;
 }
 
 .product-description {

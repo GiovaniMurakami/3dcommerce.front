@@ -106,7 +106,7 @@ canvas {
   position: absolute;
   bottom: 10px;
   right: 10px;
-  background-color: rgba(240, 240, 240, 0.8);
+  background-color: rgba(240, 240, 240, 0.5);
   border: none;
   border-radius: 4px;
   padding: 6px 10px;
