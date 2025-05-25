@@ -3,7 +3,7 @@
     <div class="product-section">
       <div class="product-images-container">
         <div class="main-image">
-          <ModelViewer :modelPath=modelPath class="modal-content"/>
+          <ModelViewer :modelPath=modelPath class="modal-content" />
         </div>
         <div class="secondary-image-carousel-container">
           <img v-for="image in product?.productImages" :key="image.id" :src="image.url" class="secondary-image" />
@@ -12,7 +12,12 @@
       <div class="product-info-container">
         <h1>{{ product?.name }}</h1>
         <p>R$ {{ product?.price }}, valor aproximado para <br> peça de 15cm</p>
-        <button class="button">Adicionar ao carrinho</button>
+        <div class="product-buttons-container">
+          <button class="button">Encomendar</button>
+          <button class="cart-button">
+            <img src="/icons/add-to-shopping-cart.svg" class="cart-icon">
+          </button>
+        </div>
       </div>
     </div>
     <div class="description-section">
@@ -48,12 +53,27 @@ const modelPath = "/models/axolot.stl"
 onMounted(async () => {
   const id = route.params.id as string;
   const fetchedProduct = await productService.getById(id);
-  product.value = fetchedProduct;
+  const capybara = {
+    ...fetchedProduct,
+    id: 'mock-2',
+    name: 'Capivara',
+    productImages: fetchedProduct.productImages.map((img, index) =>
+      index === 0 ? { ...img, url: '/images/capybara.png' } : { ...img }
+    )
+  };
+
+  const skull = {
+    ...fetchedProduct,
+    id: 'mock-3',
+    name: 'Caveira',
+    productImages: fetchedProduct.productImages.map((img, index) =>
+      index === 0 ? { ...img, url: '/images/skull.png' } : { ...img }
+    )
+  };
 
   products.value = [
-    fetchedProduct,
-    { ...fetchedProduct, id: 'mock-2' },
-    { ...fetchedProduct, id: 'mock-3' }
+    skull,
+    capybara,
   ];
   try {
     product.value = await productService.getById(id);
@@ -64,6 +84,29 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.product-buttons-container {
+  display: flex;
+  gap: 10px;
+}
+
+.cart-icon {
+  height: 30px;
+  width: 30px;
+}
+
+.cart-button {
+  padding: 16px 32px;
+  border-radius: 10px;
+  border: none;
+  background-color: #ADADAD;
+  font-weight: 400;
+  font-size: 24px;
+  letter-spacing: 1%;
+  line-height: 24px;
+  cursor: pointer;
+  transition: transform 0.1s ease, background-color 0.1s ease;
+}
+
 .page-container {
   margin: 8vh 0;
 }
@@ -151,9 +194,11 @@ onMounted(async () => {
   h1 {
     margin: 0px 0;
   }
+
   p {
     margin: 0;
   }
+
   button {
     margin-top: 64px;
   }
@@ -261,6 +306,11 @@ onMounted(async () => {
 }
 
 .button:hover {
+  transform: scale(1.05);
+  background-color: #999999;
+}
+
+.cart-button:hover {
   transform: scale(1.05);
   background-color: #999999;
 }
