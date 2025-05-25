@@ -11,7 +11,7 @@ export const productService = {
       id,
       name: 'Axolote 3D',
       price: 49.99,
-      description: 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industrys standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.',
+      description: 'Encante-se com nosso modelo 3D de axolote, um dos anfíbios mais curiosos e adorados do mundo. Este modelo captura os detalhes únicos do axolote, como suas expressivas brânquias externas e seu sorriso característico. Perfeito para decoração, presentes criativos ou colecionadores apaixonados por animais exóticos. O design foi pensado para realçar texturas suaves e formas orgânicas, garantindo uma impressão 3D de alta qualidade. Ideal para impressão em diversos tamanhos, mantendo os detalhes e proporções. Leve um pedacinho da natureza para sua casa ou escritório com este modelo encantador. Uma peça que combina fofura, biologia e arte em um só objeto.',
       fileUrl: 'https://via.placeholder.com/400',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
