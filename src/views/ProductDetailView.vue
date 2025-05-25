@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div class="page-container">
     <div class="product-section">
       <div class="product-images-container">
         <div class="main-image">
-          <img :src="product?.productImages[0].url" alt="Product Image" class="main-image-img"/>
+          <img :src="product?.productImages[0].url" alt="Product Image" class="main-image-img" />
         </div>
         <div class="image-footer">
         </div>
@@ -15,9 +15,14 @@
       </div>
     </div>
     <div class="description-section">
-      <hr class="divider"/>
+      <hr class="divider" />
       <div class="product-description">
         <p>{{ product?.description }}</p>
+      </div>
+      <div class="another-products-section">
+        <hr class="divider" />
+        <h1>Outros produtos</h1>
+        <ProductImageCarousel :products="products" />
       </div>
     </div>
   </div>
@@ -28,12 +33,22 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { productService } from '../services/productService';
 import type { ProductDTO } from '../dtos/productDto';
+import ProductImageCarousel from '../components/ProductImageCarousel.vue';
 
 const route = useRoute();
 const product = ref<ProductDTO | null>(null);
+const products = ref<ProductDTO[]>([]);
 
 onMounted(async () => {
   const id = route.params.id as string;
+  const fetchedProduct = await productService.getById(id);
+  product.value = fetchedProduct;
+
+  products.value = [
+    fetchedProduct,
+    { ...fetchedProduct, id: 'mock-2' },
+    { ...fetchedProduct, id: 'mock-3' }
+  ];
   try {
     product.value = await productService.getById(id);
   } catch (error) {
@@ -43,6 +58,10 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.page-container {
+  margin: 8vh 0;
+}
+
 .product-section {
   margin-left: 15%;
   margin-right: 15%;
@@ -84,18 +103,67 @@ onMounted(async () => {
   margin: 30px;
   display: flex;
   flex-direction: column;
-  align-items: center; 
+  align-items: center;
   text-align: center;
 }
 
 .product-description {
   width: 50%;
-    p {
-      margin: 0;
-    }
-  }
 
-  .description-section {
-    margin: 0 10%;
+  p {
+    margin: 0;
   }
+}
+
+.description-section {
+  margin: 0 10%;
+}
+
+.another-products-section {
+  width: 50%;
+
+  p {
+    margin: 0;
+  }
+}
+.product-scroll-container {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 1rem 0;
+  scrollbar-width: thin; /* Firefox */
+  scrollbar-color: #ccc transparent; /* Firefox */
+}
+
+.product-scroll-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.product-scroll-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.product-item {
+  min-width: 120px;
+  flex: 0 0 auto;
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 8px;
+  text-align: center;
+}
+
+.product-item img {
+  width: 100%;
+  aspect-ratio: 1/1;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.product-item p {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #333;
+}
+
 </style>
