@@ -5,7 +5,8 @@
         <div class="main-image">
           <img :src="product?.productImages[0].url" alt="Product Image" class="main-image-img" />
         </div>
-        <div class="image-footer">
+        <div class="secondary-image-carousel-container">
+          <img v-for="image in product?.productImages" :key="image.id" :src="image.url" class="secondary-image" />
         </div>
       </div>
       <div class="product-info-container">
@@ -98,9 +99,45 @@ onMounted(async () => {
   object-fit: cover;
 }
 
+.secondary-image-carousel-container {
+  display: flex;
+  gap: 0.5rem;
+  overflow-x: auto;
+  margin-top: 0.75rem;
+  padding-bottom: 0.5rem;
+  scrollbar-width: thin;
+  scrollbar-color: #ccc transparent;
+  cursor: pointer;
+}
+
+.secondary-image-carousel-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.secondary-image-carousel-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
+}
+
+.secondary-image {
+  width: 30%;
+  height: 30%;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+
+.secondary-image:hover {
+  transform: scale(1.1);
+}
+
 .product-info-container {
   width: 50%;
-  margin: 30px;
+  margin-top: 0px;
+  margin-bottom: 60px;
+  margin-left: 30px;
+  margin-right: 30px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -126,13 +163,16 @@ onMounted(async () => {
     margin: 0;
   }
 }
+
 .product-scroll-container {
   display: flex;
   gap: 1rem;
   overflow-x: auto;
   padding: 1rem 0;
-  scrollbar-width: thin; /* Firefox */
-  scrollbar-color: #ccc transparent; /* Firefox */
+  scrollbar-width: thin;
+  /* Firefox */
+  scrollbar-color: #ccc transparent;
+  /* Firefox */
 }
 
 .product-scroll-container::-webkit-scrollbar {
@@ -165,5 +205,4 @@ onMounted(async () => {
   font-size: 14px;
   color: #333;
 }
-
 </style>
