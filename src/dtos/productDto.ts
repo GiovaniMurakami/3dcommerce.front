@@ -7,6 +7,7 @@ export interface ProductImageDTO {
 export interface ProductDTO {
   id: string;
   name: string;
+  description: string;
   price: number;
   fileUrl: string;
   createdAt: string;
