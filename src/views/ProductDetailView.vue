@@ -3,7 +3,7 @@
     <div class="product-section">
       <div class="product-images-container">
         <div class="main-image">
-          <img :src="product?.productImages[0].url" alt="Product Image" class="main-image-img" />
+          <ModelViewer :modelPath=modelPath class="modal-content"/>
         </div>
         <div class="secondary-image-carousel-container">
           <img v-for="image in product?.productImages" :key="image.id" :src="image.url" class="secondary-image" />
@@ -28,9 +28,7 @@
     </div>
   </div>
 </template>
-        <div class="model-wrapper">
-          <ModelViewer :modelPath=modelPath class="modal-content"/>
-        </div>
+
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
@@ -75,7 +73,7 @@ onMounted(async () => {
 }
 
 .product-images-container {
-  width: 50%;
+  width: 70%;
 }
 
 .divider {
@@ -87,7 +85,7 @@ onMounted(async () => {
 
 .main-image {
   width: 100%;
-  aspect-ratio: 1 / 1;
+  aspect-ratio: 1 / 0.7;
   background-color: #f5f5f5;
   overflow: hidden;
   border-radius: 8px;
@@ -138,7 +136,7 @@ onMounted(async () => {
 }
 
 .product-info-container {
-  width: 50%;
+  width: 30%;
   margin-top: 0px;
   margin-bottom: 60px;
   margin-left: 30px;

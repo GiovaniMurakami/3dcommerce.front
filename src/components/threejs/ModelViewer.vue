@@ -7,6 +7,9 @@
         <div class="spinner"></div>
       </div>
     </div>
+          <button class="fullscreen-button" @click="toggleFullscreen">
+        ⛶
+      </button>
   </div>
 </template>
 
@@ -17,6 +20,18 @@ export default {
   name: 'ModelViewer',
   props: {
     modelPath: { type: String, required: true }
+  },
+  methods: {
+    toggleFullscreen() {
+      const container = this.$el;
+      if (!document.fullscreenElement) {
+        container.requestFullscreen().catch((err) => {
+          console.error(`Erro ao ativar fullscreen: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
   },
   data() {
     return {
@@ -85,5 +100,22 @@ canvas {
   to {
     transform: rotate(360deg);
   }
+}
+
+.fullscreen-button {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background-color: rgba(240, 240, 240, 0.8);
+  border: none;
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: background-color 0.2s ease;
+}
+
+.fullscreen-button:hover {
+  background-color: rgba(200, 200, 200, 0.9);
 }
 </style>
