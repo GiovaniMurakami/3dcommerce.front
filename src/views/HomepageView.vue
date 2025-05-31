@@ -2,6 +2,7 @@
   <div class="page-container">
     <div class="product-section">
       <div class="product-info-container">
+        <h1>Destaque da semana</h1>
         <h1>{{ product?.name }}</h1>
         <div class="product-buttons-container">
           <button class="button">Detalhes</button>
@@ -13,8 +14,10 @@
     </div>
     <div class="description-section">
       <hr class="divider" />
+      <div>Categorias mais acessadas</div>
         <ProductImageCarousel :products="products" />
       <hr class="divider" />
+      <div>Mais vendidos</div>
         <ProductCard v-if="product" :product="product"/>
     </div>
 
@@ -40,27 +43,27 @@ onMounted(async () => {
   const capybara = {
     ...fetchedProduct,
     id: 'mock-2',
-    name: 'Capivara',
+    name: 'Animes',
     productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/capybara.png' } : { ...img }
+      index === 0 ? { ...img, url: 'https://i.etsystatic.com/50958232/r/il/da0600/5855239846/il_fullxfull.5855239846_bezk.jpg' } : { ...img }
     )
   };
 
   const skull = {
     ...fetchedProduct,
     id: 'mock-3',
-    name: 'Caveira',
+    name: 'Animais',
     productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/skull.png' } : { ...img }
+      index === 0 ? { ...img, url: 'https://things.3dfila.com.br/img/54910.jpg' } : { ...img }
     )
   };
 
     const axolot = {
     ...fetchedProduct,
     id: 'mock-4',
-    name: 'Axolot',
+    name: 'Games',
     productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/axolot1.png' } : { ...img }
+      index === 0 ? { ...img, url: 'https://netrinoimages.s3.eu-west-2.amazonaws.com/2021/09/24/954367/368341/kirby_3d_model_c4d_max_obj_fbx_ma_lwo_3ds_3dm_stl_3822958.jpg' } : { ...img }
     )
   };
 
