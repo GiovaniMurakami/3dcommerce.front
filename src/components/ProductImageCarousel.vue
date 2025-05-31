@@ -78,8 +78,7 @@ function goToProduct(id: string) {
     font-size: 14px;
     font-weight: bold;
     background-color: #ADADAD;
-    color: white;
-    border: solid #ADADAD;
+    border: 1px solid rgba(0, 0, 0, 0.25);
     border-radius: 30px;
     padding-left: 30px;
     padding-right: 30px;

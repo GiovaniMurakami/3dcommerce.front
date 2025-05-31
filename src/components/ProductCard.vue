@@ -53,11 +53,10 @@ function goToProduct(id: string) {
   margin: 0;
   height: fit-content;
   font-weight: bold;
-  border: 1px solid rgba(0, 0, 0, 0.25);;
+  border: 1px solid rgba(0, 0, 0, 0.25);
   p {
     margin: 0;
     margin-left: 0.2rem;
-    
   }
 }
 </style>
