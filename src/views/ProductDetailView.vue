@@ -32,8 +32,15 @@
       <div class="another-products-section">
         <hr class="divider" />
         <div class="small-title">Outros produtos</div>
-        <ProductImageCarousel :products="products" />
       </div>
+      <div class="cards-container">
+          <ProductCard
+            v-for="product in mostAcessedProducts"
+            :key="product.id"
+            v-if="mostAcessedProducts"
+            :product="product"
+          />
+        </div>
     </div>
   </div>
 </template>
@@ -43,13 +50,15 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { productService } from '../services/productService';
 import type { ProductDTO } from '../dtos/productDto';
-import ProductImageCarousel from '../components/ProductImageCarousel.vue';
+import ProductCard from '../components/ProductCard.vue';
 import ModelViewer from '../components/threejs/ModelViewer.vue';
 
 const route = useRoute();
 const product = ref<ProductDTO | null>(null);
 const products = ref<ProductDTO[]>([]);
 const modelPath = "/models/axolot.stl"
+const mostAcessedProducts = ref<ProductDTO[]>([]);
+
 onMounted(async () => {
   const id = route.params.id as string;
   const fetchedProduct = await productService.getById(id);
@@ -77,6 +86,7 @@ onMounted(async () => {
   ];
   try {
     product.value = await productService.getById(id);
+    mostAcessedProducts.value = await productService.list();
   } catch (error) {
     console.error('Erro ao carregar o produto:', error);
   }
@@ -87,6 +97,13 @@ onMounted(async () => {
 .product-buttons-container {
   display: flex;
   gap: 10px;
+}
+
+.cards-container {
+  display: flex;
+  gap: 2vw;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 .cart-icon {
@@ -169,7 +186,7 @@ onMounted(async () => {
 }
 
 .secondary-image {
-  width: 30%;
+ width: calc(33.33% - 8.49px);
   object-fit: cover;
   border-radius: 6px;
   flex-shrink: 0;
