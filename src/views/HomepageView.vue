@@ -2,7 +2,7 @@
   <div class="page-container">
     <div class="product-section">
       <div class="product-info-container">
-        <h1>Destaque da semana</h1>
+        <h1>Destaque da semana:</h1>
         <h1>{{ product?.name }}</h1>
         <div class="product-buttons-container">
           <button class="button">Detalhes</button>
@@ -14,11 +14,27 @@
     </div>
     <div class="description-section">
       <hr class="divider" />
-      <div>Categorias mais acessadas</div>
+      <div class="most-accessed-categories">Categorias mais acessadas</div>
         <ProductImageCarousel :products="products" />
-      <hr class="divider" />
-      <div>Mais vendidos</div>
+      <hr class="divider" />      
+      <div class="best-sellers">Mais acessados</div>
+      <div class="cards-container">
         <ProductCard v-if="product" :product="product"/>
+        <ProductCard v-if="product" :product="product"/>
+        <ProductCard v-if="product" :product="product"/>
+        <ProductCard v-if="product" :product="product"/>
+        <ProductCard v-if="product" :product="product"/>
+        <ProductCard v-if="product" :product="product"/>
+        <ProductCard v-if="product" :product="product"/>
+        <ProductCard v-if="product" :product="product"/>
+        <ProductCard v-if="product" :product="product"/>
+        <ProductCard v-if="product" :product="product"/>
+        <ProductCard v-if="product" :product="product"/>
+        <ProductCard v-if="product" :product="product"/>
+        <ProductCard v-if="product" :product="product"/>
+        <ProductCard v-if="product" :product="product"/>
+        <ProductCard v-if="product" :product="product"/>
+      </div>
     </div>
 
   </div>
@@ -81,6 +97,30 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.cards-container {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.most-accessed-categories {
+  font-size: 22px;
+  background-color: #ADADAD;
+  border-radius: 12px;
+  padding: 0 16px;
+  width: fit-content;
+  align-items: center;
+}
+
+.best-sellers {
+  font-size: 22px;
+  background-color: #ADADAD;
+  border-radius: 12px;
+  padding: 0 16px;
+  width: fit-content;
+  align-items: center;
+  margin-bottom: 15px;
+}
 .product-buttons-container {
   display: flex;
   gap: 10px;
