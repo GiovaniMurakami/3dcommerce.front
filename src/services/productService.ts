@@ -12,6 +12,7 @@ export const productService = {
       name: 'Axolote 3D',
       price: 49.99,
       description: 'Encante-se com nosso modelo 3D de axolote, um dos anfíbios mais curiosos e adorados do mundo. Este modelo captura os detalhes únicos do axolote, como suas expressivas brânquias externas e seu sorriso característico. Perfeito para decoração, presentes criativos ou colecionadores apaixonados por animais exóticos. O design foi pensado para realçar texturas suaves e formas orgânicas, garantindo uma impressão 3D de alta qualidade. Ideal para impressão em diversos tamanhos, mantendo os detalhes e proporções. Leve um pedacinho da natureza para sua casa ou escritório com este modelo encantador. Uma peça que combina fofura, biologia e arte em um só objeto.',
+      category: 'Animais',
       fileUrl: 'https://via.placeholder.com/400',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),

@@ -7,7 +7,7 @@
       @click="goToProduct(product.id)"
     >
       <img :src="product.productImages[0]?.url" :alt="product.name" />
-      <p>{{ product.name }}</p>
+      <p class="product-name">{{ product.name }}</p>
     </div>
   </div>
 </template>
@@ -29,9 +29,11 @@ function goToProduct(id: string) {
 </script>
 
 <style scoped>
+
+
 .product-scroll-container {
+  justify-content: center;
   display: flex;
-  width: 80vw;
   height: 28vh;
   gap: 1rem;
   overflow-x: auto;
@@ -40,7 +42,7 @@ function goToProduct(id: string) {
   scrollbar-width: thin;
   scrollbar-color: #ccc transparent;
   cursor: pointer;
-  gap: 36px;
+  gap: 64px;
 }
 
 .product-scroll-container::-webkit-scrollbar {
@@ -54,32 +56,38 @@ function goToProduct(id: string) {
 
 .product-item {
   min-width: 140px;
-  flex: 0 0 auto;
-  background: #f5f5f5;
+  width: 25%;
   border-radius: 8px;
-  padding: 8px;
+  padding: 12px;
+  padding-bottom: 32px;
   text-align: center;
   transition: transform 0.2s;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background-color: #D9D9D9;
+
+  img {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border-radius: 4px;
+    height: 90%;
+  }
+  p {
+    font-size: 14px;
+    font-weight: bold;
+    background-color: #ADADAD;
+    color: white;
+    border: solid #ADADAD;
+    border-radius: 30px;
+    padding-left: 30px;
+    padding-right: 30px;
+  }
 }
 
 .product-item:hover {
   transform: scale(1.05);
 }
 
-.product-item img {
-  width: 100%;
-  aspect-ratio: 1/1;
-  object-fit: cover;
-  border-radius: 4px;
-  height: 100%;
-}
-
-.product-item p {
-  margin-top: 8px;
-  font-size: 14px;
-  color: #333;
-}
 </style>
