@@ -1,88 +1,84 @@
 <template>
   <div class="page-container">
     <div class="product-section">
-      <div class="product-images-container">
-        <div class="main-image">
-          <ModelViewer :modelPath=modelPath class="modal-content" />
-        </div>
-        <div class="secondary-image-carousel-container">
-          <img v-for="image in product?.productImages" :key="image.id" :src="image.url" class="secondary-image" />
+      <div class="product-info-container">
+        <div class="title">Destaque</div>
+        <div class="product-name">{{ product?.name }}</div>
+        <div class="description">Encante-se com nosso Axolote em impressão 3D, uma peça cheia de charme e personalidade. Seu design detalhado destaca as brânquias externas e o sorriso característico desse anfíbio único</div>
+        <div class="product-buttons-container">
         </div>
       </div>
-      <div class="product-info-container">
-        <h1>{{ product?.name }}</h1>
-        <p>R$ {{ product?.price }}, valor aproximado para <br> peça de 15cm</p>
-        <div class="product-buttons-container">
-          <button class="button">Encomendar</button>
-          <button class="cart-button">
-            <img src="/icons/add-to-shopping-cart.svg" class="cart-icon">
-          </button>
-        </div>
+      <div class="product-images-container">
+        <img src="/images/axolot3.png" alt="" class="main-image">
       </div>
     </div>
     <div class="description-section">
       <hr class="divider" />
-      <div class="product-description">
-        <div class="medium-title">
-          <img src="/icons/note-text.svg" alt="Ícone" class="description-icon" />
-          Descrição do produto
-        </div>
-        <p>{{ product?.description }}</p>
-      </div>
-      <div class="another-products-section">
-        <hr class="divider" />
-        <div class="small-title">Outros produtos</div>
-      </div>
+      <div class="most-accessed-categories">Categorias mais acessadas</div>
+        <ProductImageCarousel :products="products" />
+      <hr class="divider" />      
+      <div class="best-sellers">Mais acessados</div>
       <div class="cards-container">
-          <ProductCard
-            v-for="product in mostAcessedProducts"
-            :key="product.id"
-            v-if="mostAcessedProducts"
-            :product="product"
-          />
-        </div>
+      <ProductCard
+        v-for="product in mostAcessedProducts"
+        :key="product.id"
+        v-if="mostAcessedProducts"
+        :product="product"
+      />
+      </div>
     </div>
+ 
   </div>
 </template>
-
+ 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { productService } from '../services/productService';
 import type { ProductDTO } from '../dtos/productDto';
+import ProductImageCarousel from '../components/ProductImageCarousel.vue';
 import ProductCard from '../components/ProductCard.vue';
-import ModelViewer from '../components/threejs/ModelViewer.vue';
-
+ 
 const route = useRoute();
 const product = ref<ProductDTO | null>(null);
-const products = ref<ProductDTO[]>([]);
-const modelPath = "/models/axolot.stl"
 const mostAcessedProducts = ref<ProductDTO[]>([]);
-
+const products = ref<ProductDTO[]>([]);
+ 
 onMounted(async () => {
   const id = route.params.id as string;
   const fetchedProduct = await productService.getById(id);
+ 
   const capybara = {
     ...fetchedProduct,
     id: 'mock-2',
-    name: 'Capivara',
+    name: 'Animes',
     productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/capybara.png' } : { ...img }
+      index === 0 ? { ...img, url: 'https://i.etsystatic.com/50958232/r/il/da0600/5855239846/il_fullxfull.5855239846_bezk.jpg' } : { ...img }
     )
   };
-
+ 
   const skull = {
     ...fetchedProduct,
     id: 'mock-3',
-    name: 'Caveira',
+    name: 'Animais',
     productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/skull.png' } : { ...img }
+      index === 0 ? { ...img, url: 'https://things.3dfila.com.br/img/54910.jpg' } : { ...img }
     )
   };
-
+ 
+    const axolot = {
+    ...fetchedProduct,
+    id: 'mock-4',
+    name: 'Games',
+    productImages: fetchedProduct.productImages.map((img, index) =>
+      index === 0 ? { ...img, url: 'https://netrinoimages.s3.eu-west-2.amazonaws.com/2021/09/24/954367/368341/kirby_3d_model_c4d_max_obj_fbx_ma_lwo_3ds_3dm_stl_3822958.jpg' } : { ...img }
+    )
+  };
+ 
   products.value = [
-    skull,
     capybara,
+    skull,
+    axolot
   ];
   try {
     product.value = await productService.getById(id);
@@ -92,25 +88,62 @@ onMounted(async () => {
   }
 });
 </script>
-
+ 
 <style scoped>
+.product-name {
+  font-size: 22px;
+  border-radius: 12px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+ 
+.title {
+  font-size: 32px;
+  font-weight: bold;
+  background-color: #ADADAD;
+  border-radius: 12px;
+  padding: 0 16px;
+  width: fit-content;
+  align-items: center;
+}
+ 
+.cards-container {
+  display: flex;
+  gap: 4vw;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+ 
+.most-accessed-categories {
+  font-size: 22px;
+  background-color: #ADADAD;
+  border-radius: 12px;
+  padding: 0 16px;
+  width: fit-content;
+  align-items: center;
+  margin-left: 2vw;
+}
+ 
+.best-sellers {
+  font-size: 22px;
+  background-color: #ADADAD;
+  border-radius: 12px;
+  padding: 0 16px;
+  width: fit-content;
+  margin-bottom: 15px;
+  margin-left: 6.5vw;
+}
+ 
 .product-buttons-container {
   display: flex;
   gap: 10px;
 }
-
-.cards-container {
-  display: flex;
-  gap: 2vw;
-  flex-wrap: wrap;
-  justify-content: space-between;
-}
-
+ 
 .cart-icon {
   height: 30px;
   width: 30px;
 }
-
+ 
 .cart-button {
   padding: 16px 32px;
   border-radius: 10px;
@@ -123,11 +156,12 @@ onMounted(async () => {
   cursor: pointer;
   transition: transform 0.1s ease, background-color 0.1s ease;
 }
-
+ 
 .page-container {
   margin: 8vh 0;
 }
 
+ 
 .product-section {
   margin-left: 15%;
   margin-right: 15%;
@@ -135,18 +169,18 @@ onMounted(async () => {
   gap: 8rem;
   align-items: center;
 }
-
+ 
 .product-images-container {
   width: 70%;
 }
-
+ 
 .divider {
   border: none;
   height: 1px;
   background-color: #ccc;
   margin: 30px 0;
 }
-
+ 
 .main-image {
   width: 100%;
   aspect-ratio: 1 / 0.7;
@@ -158,46 +192,13 @@ onMounted(async () => {
   justify-content: center;
   border: 2px solid #AFB1B6;
 }
-
+ 
 .main-image-img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-
-.secondary-image-carousel-container {
-  display: flex;
-  gap: 0.5rem;
-  overflow-x: auto;
-  margin-top: 0.75rem;
-  padding-bottom: 0.5rem;
-  scrollbar-width: thin;
-  scrollbar-color: #ccc transparent;
-  cursor: pointer;
-}
-
-.secondary-image-carousel-container::-webkit-scrollbar {
-  height: 6px;
-}
-
-.secondary-image-carousel-container::-webkit-scrollbar-thumb {
-  background-color: #ccc;
-  border-radius: 4px;
-}
-
-.secondary-image {
- width: calc(33.33% - 8.49px);
-  object-fit: cover;
-  border-radius: 6px;
-  flex-shrink: 0;
-  transition: transform 0.2s;
-  border: 2px solid #AFB1B6;
-}
-
-.secondary-image:hover {
-  transform: scale(1.05);
-}
-
+ 
 .product-info-container {
   width: 30%;
   margin-top: 0px;
@@ -207,20 +208,20 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-
+ 
   h1 {
     margin: 0px 0;
   }
-
+ 
   p {
     margin: 0;
   }
-
+ 
   button {
     margin-top: 64px;
   }
 }
-
+ 
 .medium-title {
   font-size: 28px;
   background-color: #ADADAD;
@@ -231,13 +232,13 @@ onMounted(async () => {
   align-items: center;
   display: flex;
 }
-
+ 
 .description-icon {
   width: 24px;
   height: 24px;
   margin-right: 8px;
 }
-
+ 
 .small-title {
   font-size: 24px;
   background-color: #ADADAD;
@@ -246,30 +247,23 @@ onMounted(async () => {
   width: fit-content;
   align-items: center;
 }
-
+ 
 .product-description {
   width: 50%;
-
+ 
   p {
     margin: 0;
   }
 }
-
+ 
 .description-section {
   margin: 0 10%;
 }
-
-.another-products-section {
-  width: 50%;
-
-  p {
-    margin: 0;
-  }
-}
-
+ 
+ 
 .product-scroll-container {
   display: flex;
-  gap: 1rem;
+  gap: 5rem;
   overflow-x: auto;
   padding: 1rem 0;
   scrollbar-width: thin;
@@ -277,40 +271,18 @@ onMounted(async () => {
   scrollbar-color: #ccc transparent;
   /* Firefox */
 }
-
+ 
 .product-scroll-container::-webkit-scrollbar {
   height: 6px;
 }
-
+ 
 .product-scroll-container::-webkit-scrollbar-thumb {
   background-color: #ccc;
   border-radius: 4px;
 }
-
-.product-item {
-  min-width: 120px;
-  flex: 0 0 auto;
-  background: #f5f5f5;
-  border-radius: 8px;
-  padding: 8px;
-  text-align: center;
-}
-
-.product-item img {
-  width: 100%;
-  aspect-ratio: 1/1;
-  object-fit: cover;
-  border-radius: 4px;
-}
-
-.product-item p {
-  margin-top: 8px;
-  font-size: 14px;
-  color: #333;
-}
-
+ 
 .button {
-  padding: 16px 32px;
+  padding: 8px 16px;
   border-radius: 10px;
   border: none;
   background-color: #ADADAD;
@@ -321,17 +293,17 @@ onMounted(async () => {
   cursor: pointer;
   transition: transform 0.1s ease, background-color 0.1s ease;
 }
-
+ 
 .button:hover {
   transform: scale(1.05);
   background-color: #999999;
 }
-
+ 
 .cart-button:hover {
   transform: scale(1.05);
   background-color: #999999;
 }
-
+ 
 .model-wrapper {
   width: 30vw;
   height: 30vh;

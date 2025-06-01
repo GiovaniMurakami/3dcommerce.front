@@ -64,10 +64,10 @@ canvas {
   width: 100%;
   height: 100%;
   display: block;
+  border-radius: 4px;
 }
 
 .modal-content {
-  padding: 2px;
   border-radius: 4px;
   width: 100%;
   height: 100%;
