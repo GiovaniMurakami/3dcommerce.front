@@ -49,7 +49,7 @@
               role="menuitem"
             >
               <router-link 
-                :to="{ path: '/products', query: { category: category.name } }"
+                :to="{ path: '/products', query: { categoryName: category.name } }"
                 @click.native="showDropdown = false"
               >
                 {{ category.name }}
