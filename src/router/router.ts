@@ -8,11 +8,13 @@ import AccountView from '../views/AccountView.vue';
 
 const routes = [
   { path: '/products/:id', component: ProductDetailView, props: true, name: 'ProductDetailView' },
-  { path: '/home', component: HomepageView, props: true, name: 'HomepageView' },
+  { path: '/products', component: ProductDetailView, props: true, name: 'ProductDetailView' },
+  { path: '/', component: HomepageView, props: true, name: 'HomepageView' },
   { path: '/cart', component: CartView, props: true, name: 'CartView' },
   { path: '/login', component: LoginpageView, props: true, name: 'LoginpageView' },
   { path: '/createaccount', component: AccountcreateView, props: true, name: 'AccountcreateView' },
-  { path: '/account', component: AccountView, props: true, name: 'AccountView' }
+  { path: '/account', component: AccountView, props: true, name: 'AccountView' },
+  { path: '/:pathMatch(.*)*', redirect: '/'}
 ];
 
 const router = createRouter({
