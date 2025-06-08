@@ -90,7 +90,7 @@ function doSearch() {
   const query = searchTerm.value.trim()
   if (!query) return
 
-  router.push({ name: 'ProductDetailView', query: { name: query } })
+  router.push({ name: 'ListProductsView', query: { name: query } })
 }
 
 onMounted(() => {
