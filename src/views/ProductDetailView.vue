@@ -14,7 +14,7 @@
         <p>R$ {{ product?.price }}, valor aproximado para <br> peça de 15cm</p>
         <div class="product-buttons-container">
           <button class="button">Encomendar</button>
-          <button class="cart-button">
+          <button class="cart-button" :class="{ animated: cartButtonAnimated }" @click="addToCart">
             <img src="/icons/add-to-shopping-cart.svg" class="cart-icon">
           </button>
         </div>
@@ -34,13 +34,9 @@
         <div class="small-title">Outros produtos</div>
       </div>
       <div class="cards-container">
-          <ProductCard
-            v-for="product in mostAcessedProducts"
-            :key="product.id"
-            v-if="mostAcessedProducts"
-            :product="product"
-          />
-        </div>
+        <ProductCard v-for="product in mostAcessedProducts" :key="product.id" v-if="mostAcessedProducts"
+          :product="product" />
+      </div>
     </div>
   </div>
 </template>
@@ -58,6 +54,36 @@ const product = ref<ProductDTO | null>(null);
 const products = ref<ProductDTO[]>([]);
 const modelPath = "/models/axolot.stl"
 const mostAcessedProducts = ref<ProductDTO[]>([]);
+
+
+const cartButtonAnimated = ref(false);
+
+const addToCart = () => {
+  if (!product.value) return;
+  const minimalProduct = {
+    id: product.value.id,
+    name: product.value.name,
+    price: product.value.price,
+    description: product.value.description,
+    image: product.value.productImages?.[0]?.url || '',
+    quantity: 1
+  };
+  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  const existingIndex = cart.findIndex((item: any) => item.id === minimalProduct.id);
+  if (existingIndex !== -1) {
+    cart[existingIndex].quantity += 1;
+  } else {
+    cart.push(minimalProduct);
+  }
+  localStorage.setItem('cart', JSON.stringify(cart));
+  // Dispara evento para atualizar o Header e outros componentes reativos
+  window.dispatchEvent(new Event('storage'));
+
+  cartButtonAnimated.value = true;
+  setTimeout(() => {
+    cartButtonAnimated.value = false;
+  }, 600);
+};
 
 onMounted(async () => {
   const id = route.params.id as string;
@@ -121,7 +147,29 @@ onMounted(async () => {
   letter-spacing: 1%;
   line-height: 24px;
   cursor: pointer;
-  transition: transform 0.1s ease, background-color 0.1s ease;
+  transition: transform 0.1s ease, background-color 0.1s ease, box-shadow 0.2s;
+  position: relative;
+}
+
+.cart-button:hover {
+  transform: scale(1.08);
+  background-color: #999999;
+  box-shadow: 0 0 0 4px #e0e0e0;
+}
+
+.cart-button.animated {
+  animation: cart-bounce 0.6s;
+  background-color: #7ed957 !important;
+  box-shadow: 0 0 0 8px #b6f7b0;
+}
+
+@keyframes cart-bounce {
+  0%   { transform: scale(1); }
+  20%  { transform: scale(1.15); }
+  40%  { transform: scale(0.95); }
+  60%  { transform: scale(1.08); }
+  80%  { transform: scale(0.98); }
+  100% { transform: scale(1); }
 }
 
 .page-container {
@@ -186,7 +234,7 @@ onMounted(async () => {
 }
 
 .secondary-image {
- width: calc(33.33% - 8.49px);
+  width: calc(33.33% - 8.49px);
   object-fit: cover;
   border-radius: 6px;
   flex-shrink: 0;

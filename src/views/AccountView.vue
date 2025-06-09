@@ -30,6 +30,10 @@ import imagePath from '/public/images/renato.jpg'
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem 1rem;
+  flex: 1 0 auto;
+  min-height: 50vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .profile-title {

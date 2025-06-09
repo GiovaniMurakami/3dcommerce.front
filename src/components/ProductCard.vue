@@ -15,7 +15,7 @@
 import { useRouter } from 'vue-router';
 import type { ProductDTO } from '../dtos/productDto';
 
-const props = defineProps<{
+defineProps<{
   product: ProductDTO;
 }>();
 
