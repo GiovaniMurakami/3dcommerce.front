@@ -2,7 +2,7 @@
   <header>
     <div class="header-container">
 
-      <div class="title-container">
+      <div class="title-container" @click="goHome" style="cursor:pointer;">
         <img src="/icons/3d-machine.svg" class="header-icon" />
         <div class="header-title">3D Commerce</div>
       </div>
@@ -59,6 +59,10 @@ const categories = ref<{ id: string; name: string }[]>([])
 const showDropdown = ref(false)
 
 const cartCount = ref(0);
+
+function goHome() {
+  router.push('/');
+}
 
 function updateCartCount() {
   const cart = JSON.parse(localStorage.getItem('cart') || '[]');
@@ -172,7 +176,7 @@ header {
 
 .icons button:hover {
   background: #f0f4ff;
-  box-shadow: 0 2px 8px rgba(0,123,255,0.10);
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.10);
   color: #007BFF;
   transform: scale(1.08);
 }
