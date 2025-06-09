@@ -8,18 +8,16 @@
       </div>
 
       <div class="search-bar">
-        <input 
-          v-model="searchTerm" 
-          @keyup.enter="doSearch" 
-          type="text" 
-          placeholder="Pesquisar produtos..."
-        />
+        <input v-model="searchTerm" @keyup.enter="doSearch" type="text" placeholder="Pesquisar produtos..." />
         <button @click="doSearch">🔍</button>
       </div>
 
       <div class="icons">
         <button><img src="/icons/account.svg" class="header-icon" /></button>
-        <button><img  @click="goToCart" src="/icons/shopping-cart.svg" class="header-icon" /></button>
+        <button @click="goToCart" class="cart-btn">
+          <img src="/icons/shopping-cart.svg" class="header-icon" />
+          <span v-if="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
+        </button>
       </div>
     </div>
 
@@ -27,34 +25,20 @@
       <ul>
         <li><router-link to="/">Início</router-link></li>
         <li><router-link to="/products">Produtos</router-link></li>
-        <li 
-          class="dropdown" 
-          @mouseenter="showDropdown = true" 
-          @mouseleave="showDropdown = false"
-          :aria-expanded="showDropdown.toString()"
-        >
+        <li class="dropdown" @mouseenter="showDropdown = true" @mouseleave="showDropdown = false"
+          :aria-expanded="showDropdown">
           <a href="#" @click.prevent>
-            Categorias 
-            <span 
-              class="dropdown-arrow" 
-              :class="{ open: showDropdown }"
-              aria-hidden="true"
-            ></span>
+            Categorias
+            <span class="dropdown-arrow" :class="{ open: showDropdown }" aria-hidden="true"></span>
           </a>
           <ul :style="{ display: showDropdown ? 'block' : 'none' }" class="dropdown-menu" role="menu">
             <div class="dropdown-container">
-              <li 
-              v-for="category in categories" 
-              :key="category.id"
-              role="menuitem"
-            >
-              <router-link 
-                :to="{ path: '/products', query: { categoryName: category.name } }"
-                @click.native="showDropdown = false"
-              >
-                {{ category.name }}
-              </router-link>
-            </li>
+              <li v-for="category in categories" :key="category.id" role="menuitem">
+                <router-link :to="{ path: '/products', query: { categoryName: category.name } }"
+                  @click.native="showDropdown = false">
+                  {{ category.name }}
+                </router-link>
+              </li>
             </div>
           </ul>
         </li>
@@ -73,6 +57,19 @@ const router = useRouter()
 
 const categories = ref<{ id: string; name: string }[]>([])
 const showDropdown = ref(false)
+
+const cartCount = ref(0);
+
+function updateCartCount() {
+  const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+  cartCount.value = cart.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
+}
+
+onMounted(() => {
+  loadCategories();
+  updateCartCount();
+  window.addEventListener('storage', updateCartCount);
+});
 
 async function loadCategories() {
   try {
@@ -102,7 +99,7 @@ onMounted(() => {
 header {
   width: 100%;
   background-color: white;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .header-container {
@@ -168,10 +165,16 @@ header {
   border: none;
   font-size: 20px;
   cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+  padding: 6px;
 }
 
 .icons button:hover {
+  background: #f0f4ff;
+  box-shadow: 0 2px 8px rgba(0,123,255,0.10);
   color: #007BFF;
+  transform: scale(1.08);
 }
 
 .navbar {
@@ -212,9 +215,6 @@ header {
   position: absolute;
 }
 
-.dropdown-container li {
-}
-
 .dropdown-arrow {
   display: inline-block;
   margin-left: 6px;
@@ -246,5 +246,28 @@ header {
   color: #333;
   display: block;
   width: 100%;
+}
+
+.cart-btn {
+  position: relative;
+}
+
+.cart-badge {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  background: #03009e;
+  color: #fff;
+  border-radius: 50%;
+  min-width: 22px;
+  height: 22px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  pointer-events: none;
+  z-index: 2;
 }
 </style>

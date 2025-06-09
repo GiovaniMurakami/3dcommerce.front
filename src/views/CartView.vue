@@ -8,11 +8,8 @@
         <div class="cart-list-content">
           <div class="cart-items">
             <div v-for="(product, index) in products" :key="product.id" class="cart-item">
-              <img 
-                :src="product.productImages?.[0]?.url || 'https://via.placeholder.com/60'" 
-                alt="Imagem do produto" 
-                class="cart-image" 
-              />
+              <img :src="product.image || 'https://via.placeholder.com/60'" alt="Imagem do produto"
+                class="cart-image" />
               <div class="cart-quantity-controls">
                 <button @click="decreaseQuantity(index)">-</button>
                 <span>{{ product.quantity }}</span>
@@ -33,7 +30,7 @@
           </div>
         </div>
       </div>
-      
+
       <div v-else>
         <p>Carrinho vazio.</p>
       </div>
@@ -43,76 +40,52 @@
     <div class="another-products-section">
       <div class="most-accessed-categories">Outros produtos</div>
     </div>
-    
+
     <div class="cards-container">
-      <ProductCard 
-        v-for="product in mostAcessedProducts" 
-        :key="product.id" 
-        :product="product" 
-      />
+      <ProductCard v-for="product in mostAcessedProducts" :key="product.id" :product="product" />
     </div>
   </div>
 </template>
- 
+
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
 import { productService } from '../services/productService'
 import type { ProductDTO } from '../dtos/productDto'
 import ProductCard from '../components/ProductCard.vue';
- 
-const route = useRoute()
-const mostAcessedProducts = ref<ProductDTO[]>([]);
-const product = ref<ProductDTO | null>(null);
-const products = ref<ProductDTO[]>([]);
- 
-onMounted(async () => {
-  const id = route.params.id as string;
-  const fetchedProduct = await productService.getById(id);
-  const capybara = {
-    ...fetchedProduct,
-    id: 'mock-2',
-    quantity: 1,
-    name: 'Capivara',
-    productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/capybara.png' } : { ...img }
-    )
-  };
 
-  const skull = {
-    ...fetchedProduct,
-    id: 'mock-3',
-    quantity: 1,
-    name: 'Caveira',
-    productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/skull.png' } : { ...img }
-    )
-  };
-  
-  products.value = [capybara, skull];
+const mostAcessedProducts = ref<ProductDTO[]>([]);
+const products = ref<ProductDTO[]>([]);
+
+onMounted(async () => {
+  products.value = JSON.parse(localStorage.getItem('cart') || '[]');
 
   try {
-    product.value = await productService.getById(id);
     mostAcessedProducts.value = await productService.list();
   } catch (error) {
-    console.error('Erro ao carregar o produto:', error);
+    console.error('Erro ao carregar produtos:', error);
   }
 });
 
 function increaseQuantity(index: number) {
   products.value[index].quantity = (products.value[index].quantity || 1) + 1;
+  localStorage.setItem('cart', JSON.stringify(products.value));
+  window.dispatchEvent(new Event('storage'));
 }
- 
+
 function decreaseQuantity(index: number) {
   if (products.value[index].quantity && products.value[index].quantity > 1) {
     products.value[index].quantity--;
+    localStorage.setItem('cart', JSON.stringify(products.value));
+    window.dispatchEvent(new Event('storage'));
   }
 }
- 
+
 function removeItem(index: number) {
   products.value.splice(index, 1);
+  localStorage.setItem('cart', JSON.stringify(products.value));
+  window.dispatchEvent(new Event('storage'));
 }
- 
+
 const totalCartValue = computed(() =>
   products.value.reduce((sum, p) => sum + (p.price * (p.quantity || 1)), 0)
 );
@@ -130,11 +103,11 @@ Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n
 
   const whatsappNumber = '5519997585697';
   const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-  
+
   window.open(url, '_blank');
 }
 </script>
- 
+
 <style scoped>
 .divider {
   border: none;
@@ -234,19 +207,19 @@ Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n
 }
 
 .cart-total {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 20px;
 }
 
 .cart-total strong {
-    margin-bottom: 5px;
-    display: block;
+  margin-bottom: 5px;
+  display: block;
 }
 
 .total-value {
-    margin-top: 5px;
+  margin-top: 5px;
 }
 
 .button {
