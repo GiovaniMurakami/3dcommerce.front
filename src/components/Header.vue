@@ -13,8 +13,9 @@
       </div>
 
       <div class="icons">
-        <button><img src="/icons/account.svg" class="header-icon" /></button>
-        <button @click="goToCart" class="cart-btn">
+        <button @click="goToAccount">
+          <img src="/icons/account.svg" class="header-icon" />
+        </button> <button @click="goToCart" class="cart-btn">
           <img src="/icons/shopping-cart.svg" class="header-icon" />
           <span v-if="cartCount > 0" class="cart-badge">{{ cartCount }}</span>
         </button>
@@ -62,6 +63,10 @@ const cartCount = ref(0);
 
 function goHome() {
   router.push('/');
+}
+
+function goToAccount() {
+  router.push('/account');
 }
 
 function updateCartCount() {
