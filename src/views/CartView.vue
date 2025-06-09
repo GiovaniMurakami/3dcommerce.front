@@ -120,14 +120,6 @@ function decreaseQuantity(index: number) {
   }
 }
 
-function removeItem(index: number) {
-  if (confirm('Deseja remover este item do carrinho?')) {
-    products.value.splice(index, 1);
-    localStorage.setItem('cart', JSON.stringify(products.value));
-    window.dispatchEvent(new Event('storage'));
-  }
-}
-
 const totalCartValue = computed(() =>
   products.value.reduce((sum, p) => sum + (p.price * (p.quantity || 1)), 0)
 );
