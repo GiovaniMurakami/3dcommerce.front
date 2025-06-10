@@ -6,6 +6,8 @@ import LoginpageView from '../views/LoginpageView.vue';
 import AccountcreateView from '../views/AccountcreateView.vue';
 import AccountView from '../views/AccountView.vue';
 import ListProductsView from '../views/ListProductsView.vue';
+import CreateProductView from '../views/CreateProductView.vue';
+import ManageProductsView from '../views/ManageProductsView.vue';
 
 const routes = [
   { path: '/products/:id', component: ProductDetailView, props: true, name: 'ProductDetailView' },
@@ -15,6 +17,8 @@ const routes = [
   { path: '/login', component: LoginpageView, props: true, name: 'LoginpageView' },
   { path: '/createaccount', component: AccountcreateView, props: true, name: 'AccountcreateView' },
   { path: '/account', component: AccountView, props: true, name: 'AccountView' },
+  { path: '/products/management/create', component: CreateProductView, props: true, name: 'CreateProductView' },
+  { path: '/products/management', component: ManageProductsView, props: true, name: 'ManageProductsView' },
   { path: '/:pathMatch(.*)*', redirect: '/'}
 ];
 

@@ -1,5 +1,7 @@
 <template>
   <div class="profile-container">
+    <button class="save-button"> Gerenciar produtos </button>
+
     <h1 class="profile-title">Meu perfil</h1>
 
     <div class="profile-content">

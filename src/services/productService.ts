@@ -31,6 +31,7 @@ export const productService = {
       {
         id: '1',
         name: 'Axolote',
+        quantity: 1,
         price: 49.99,
         description: 'Modelo 3D de axolote, fofo e detalhado.',
         category: 'Animais',
@@ -45,7 +46,7 @@ export const productService = {
       },
       {
         id: '2',
-        name: 'Caveira',
+        name: 'Caveira',quantity: 1,
         price: 59.99,
         description: 'Modelo de caveira realista em 3D.',
         category: 'Decoração',
@@ -61,7 +62,7 @@ export const productService = {
       {
         id: '3',
         name: 'Capivara',
-        price: 39.99,
+        price: 39.99,quantity: 1,
         description: 'Modelo estilizado de capivara em 3D.',
         category: 'Animais',
         fileUrl: 'https://via.placeholder.com/400',
@@ -76,7 +77,7 @@ export const productService = {
       {
         id: '4',
         name: 'Caneca',
-        price: 39.99,
+        price: 39.99,quantity: 1,
         description: 'Caneca para utilizar no dia a dia',
         category: 'Utensílios',
         fileUrl: 'https://via.placeholder.com/400',
@@ -91,8 +92,8 @@ export const productService = {
       {
         id: '5',
         name: 'Mão decorativa',
-        price: 39.99,
-        description: 'Caneca para utilizar no dia a dia',
+        price: 39.99,quantity: 1,
+        description: 'Escultura de mão impressa em 3D, excelente para decoração artística ou apoio de acessórios.',
         category: 'Decoração',
         fileUrl: 'https://via.placeholder.com/400',
         createdAt: new Date().toISOString(),
@@ -106,8 +107,8 @@ export const productService = {
       {
         id: '6',
         name: 'De mãos dadas',
-        price: 39.99,
-        description: 'Caneca para utilizar no dia a dia',
+        price: 39.99,quantity: 1,
+        description: 'Escultura de duas mãos unidas, simbolizando afeto e união. Ideal para presentear ou decorar.',
         category: 'Decoração',
         fileUrl: 'https://via.placeholder.com/400',
         createdAt: new Date().toISOString(),
@@ -121,8 +122,8 @@ export const productService = {
       {
         id: '7',
         name: 'Pingente relâmpago',
-        price: 39.99,
-        description: 'Caneca para utilizar no dia a dia',
+        price: 39.99,quantity: 1,
+        description: 'Pingente com design de relâmpago, leve e moderno, perfeito para colares ou chaveiros personalizados.',
         category: 'Acessórios',
         fileUrl: 'https://via.placeholder.com/400',
         createdAt: new Date().toISOString(),
@@ -136,8 +137,8 @@ export const productService = {
       {
         id: '8',
         name: 'Cachorro da fazenda',
-        price: 39.99,
-        description: 'Caneca para utilizar no dia a dia',
+        price: 39.99,quantity: 1,
+        description: 'Estatueta de cachorro com estilo rústico, ideal para compor ambientes aconchegantes e temáticos.',
         category: 'Animais',
         fileUrl: 'https://via.placeholder.com/400',
         createdAt: new Date().toISOString(),
