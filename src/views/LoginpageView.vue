@@ -91,6 +91,7 @@ async function handleLogin() {
     if (response.data && response.data.accessToken) {
       localStorage.setItem('accessToken', response.data.accessToken)
       localStorage.setItem('refreshToken', response.data.refreshToken)
+      localStorage.setItem('userEmail', form.value.email)
       api.defaults.headers.common['Authorization'] = `Bearer ${response.data.accessToken}`
       router.push('/')
     }

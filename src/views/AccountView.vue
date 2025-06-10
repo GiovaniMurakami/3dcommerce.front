@@ -1,50 +1,89 @@
 <template>
-  <div class="profile-container">
-    <h1 class="profile-title">Meu perfil</h1>
+  <div class="profile-outer">
+    <div class="profile-container">
+      <h1 class="profile-title">Meu perfil</h1>
 
-    <div class="profile-content">
-      <div class="avatar-box">
-        <img :src="imagePath" alt="Avatar" class="avatar-image" />
+      <div class="profile-content">
+        <div class="avatar-box">
+          <img :src="imagePath" alt="Avatar" class="avatar-image" />
+        </div>
+
+        <form class="profile-form">
+          <input v-model="user.fullName" type="text" placeholder="Nome completo" class="input" disabled />
+          <input v-model="user.email" type="email" placeholder="Email" class="input" disabled />
+          <input v-model="user.cpf" type="text" placeholder="CPF" class="input" disabled />
+          <input v-model="user.phone" type="text" placeholder="Telefone" class="input" disabled />
+          <input v-model="user.customerProfile.address" type="text" placeholder="Endereço" class="input" disabled />
+          <input v-model="user.customerProfile.city" type="text" placeholder="Cidade" class="input" disabled />
+        </form>
       </div>
 
-      <form class="profile-form">
-        <input type="text" placeholder="Nome completo" class="input" />
-        <input type="email" placeholder="Email" class="input" />
-        <input type="password" placeholder="Senha" class="input" />
-      </form>
-    </div>
-
-    <div class="button-box">
-      <button class="save-button">Salvar</button>
-      <button class="logout-button" @click="logout">Sair</button>
+      <div class="button-box">
+        <button class="logout-button" @click="logout">Sair</button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import imagePath from '/public/images/renato.jpg'
+import { ref, onMounted } from 'vue'
+import api from '../services/api'
 import { useRouter } from 'vue-router'
+import imagePath from '/public/images/renato.jpg'
 
 const router = useRouter()
+
+const user = ref({
+  fullName: '',
+  email: '',
+  cpf: '',
+  phone: '',
+  customerProfile: {
+    address: '',
+    city: ''
+  }
+})
+
+async function fetchUser() {
+  try {
+    const response = await api.get('/me')
+    user.value = response.data
+  } catch (e) {
+    // Se não autorizado, desloga
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    router.push('/login')
+  }
+}
 
 function logout() {
   localStorage.removeItem('accessToken')
   localStorage.removeItem('refreshToken')
   router.push('/login')
 }
+
+onMounted(fetchUser)
 </script>
 
 <style scoped>
+.profile-outer {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(120deg, #f0f4f8 0%, #e0e7ef 100%);
+  padding: 32px 0;
+}
+
 .profile-container {
-  max-width: 800px;
-  margin-block: 2rem;
-  margin-inline: auto;
-  padding: 2rem;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 2.5rem 2rem;
   flex: 1 0 auto;
-  min-height: 60vh;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(120deg, #f0f4f8 0%, #e0e7ef 100%);
+  background: #fff;
   border-radius: 18px;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
 }
@@ -61,8 +100,8 @@ function logout() {
 .profile-content {
   display: flex;
   flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 2rem;
+  justify-content: center;
+  gap: 2.5rem;
   align-items: flex-start;
   background: #fff;
   border-radius: 14px;
@@ -72,10 +111,11 @@ function logout() {
 
 .profile-form {
   flex: 1;
-  min-width: 280px;
+  min-width: 260px;
+  max-width: 340px;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1.1rem;
 }
 
 .input {
@@ -84,9 +124,10 @@ function logout() {
   border: 2px solid transparent;
   border-radius: 8px;
   font-size: 1rem;
-  width: 95%;
+  width: 100%;
   transition: border-color 0.3s, background 0.3s, box-shadow 0.2s;
   outline: none;
+  box-sizing: border-box;
 }
 
 .input:focus {
@@ -134,24 +175,6 @@ function logout() {
   gap: 1rem;
 }
 
-.save-button {
-  background: linear-gradient(90deg, #7b9acc 0%, #4caf50 100%);
-  color: #fff;
-  font-weight: 600;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.3s, box-shadow 0.3s;
-  font-size: 1rem;
-  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.08);
-}
-
-.save-button:hover {
-  background: linear-gradient(90deg, #4caf50 0%, #7b9acc 100%);
-  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.18);
-}
-
 .logout-button {
   background: linear-gradient(90deg, #e53935 0%, #b71c1c 100%);
   color: #fff;
@@ -168,5 +191,21 @@ function logout() {
 .logout-button:hover {
   background: linear-gradient(90deg, #b71c1c 0%, #e53935 100%);
   box-shadow: 0 4px 16px rgba(229, 57, 53, 0.18);
+}
+
+@media (max-width: 900px) {
+  .profile-content {
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 0.5rem;
+  }
+
+  .profile-form {
+    max-width: 100%;
+  }
+
+  .profile-container {
+    padding: 1.5rem 0.5rem;
+  }
 }
 </style>
