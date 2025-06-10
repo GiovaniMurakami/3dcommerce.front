@@ -66,7 +66,12 @@ function goHome() {
 }
 
 function goToAccount() {
-  router.push('/account');
+  const isLoggedIn = !!localStorage.getItem('accessToken');
+  if (isLoggedIn) {
+    router.push('/account');
+  } else {
+    router.push('/login');
+  }
 }
 
 function updateCartCount() {
