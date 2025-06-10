@@ -9,6 +9,7 @@ import ListProductsView from '../views/ListProductsView.vue';
 import ManageProductsView from '../views/ManageProductsView.vue';
 import AdministrativeArea from '../views/AdministrativeArea.vue';
 import CreateProductView from '../views/CreateProductView.vue';
+import ManageCategoriesView from '../views/ManageCategoriesView.vue';
 
 const routes = [
   { path: '/products/:id', component: ProductDetailView, props: true, name: 'ProductDetailView' },
@@ -21,6 +22,7 @@ const routes = [
   { path: '/products/management', component: ManageProductsView, props: true, name: 'ManageProductsView' },
   { path: '/admin', component: AdministrativeArea, props: true, name: 'AdministrativeArea' },
   { path: '/createproduct', component: CreateProductView, props: true, name: 'CreateProductView' },
+  { path: '/managecategories', component: ManageCategoriesView, props: true, name: 'ManageCategoriesView' },
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ];
 

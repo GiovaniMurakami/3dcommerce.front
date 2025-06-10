@@ -5,6 +5,9 @@
             <button class="create-product-btn" @click="goToCreateProduct">
                 Criar Produto
             </button>
+            <button class="manage-category-btn" @click="goToManageCategories">
+                Gerenciar Categorias
+            </button>
         </div>
     </div>
 </template>
@@ -29,6 +32,10 @@ onMounted(async () => {
 
 function goToCreateProduct() {
     router.push('/createproduct')
+}
+
+function goToManageCategories() {
+    router.push('/managecategories')
 }
 </script>
 
@@ -64,7 +71,8 @@ function goToCreateProduct() {
     text-align: center;
 }
 
-.create-product-btn {
+.create-product-btn,
+.manage-category-btn {
     background: linear-gradient(90deg, #7b9acc 0%, #4caf50 100%);
     color: #fff;
     font-weight: 600;
@@ -75,9 +83,11 @@ function goToCreateProduct() {
     font-size: 1.1rem;
     box-shadow: 0 2px 8px rgba(76, 175, 80, 0.08);
     transition: background 0.3s, box-shadow 0.3s;
+    margin-top: 1rem;
 }
 
-.create-product-btn:hover {
+.create-product-btn:hover,
+.manage-category-btn:hover {
     background: linear-gradient(90deg, #4caf50 0%, #7b9acc 100%);
     box-shadow: 0 4px 16px rgba(76, 175, 80, 0.18);
 }
