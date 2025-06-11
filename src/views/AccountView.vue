@@ -19,6 +19,9 @@
       </div>
 
       <div class="button-box">
+        <button v-if="user.role === 'ADMIN'" class="admin-button" @click="goToAdmin">
+          Área Administrativa
+        </button>
         <button class="logout-button" @click="logout">Sair</button>
       </div>
     </div>
@@ -41,7 +44,8 @@ const user = ref({
   customerProfile: {
     address: '',
     city: ''
-  }
+  },
+  role: ''
 })
 
 async function fetchUser() {
@@ -49,7 +53,6 @@ async function fetchUser() {
     const response = await api.get('/me')
     user.value = response.data
   } catch (e) {
-    // Se não autorizado, desloga
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     router.push('/login')
@@ -60,6 +63,10 @@ function logout() {
   localStorage.removeItem('accessToken')
   localStorage.removeItem('refreshToken')
   router.push('/login')
+}
+
+function goToAdmin() {
+  router.push('/admin')
 }
 
 onMounted(fetchUser)
@@ -191,6 +198,24 @@ onMounted(fetchUser)
 .logout-button:hover {
   background: linear-gradient(90deg, #b71c1c 0%, #e53935 100%);
   box-shadow: 0 4px 16px rgba(229, 57, 53, 0.18);
+}
+
+.admin-button {
+  background: linear-gradient(90deg, #7b9acc 0%, #4caf50 100%);
+  color: #fff;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s, box-shadow 0.3s;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.08);
+}
+
+.admin-button:hover {
+  background: linear-gradient(90deg, #4caf50 0%, #7b9acc 100%);
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.18);
 }
 
 @media (max-width: 900px) {
