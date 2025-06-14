@@ -4,7 +4,7 @@
       class="product-item"
       v-for="product in products"
       :key="product.id"
-      @click="goToProduct(product.id)"
+      @click="goToCategory(product.categoryName)"
     >
       <img :src="product.productImages[0]?.url" :alt="product.name" />
       <p class="product-name">{{ product.name }}</p>
@@ -24,6 +24,10 @@ const router = useRouter();
 
 function goToProduct(id: string) {
   router.push(`/products/${id}`);
+}
+
+function goToCategory(categoryName: string) {
+  router.push({ path: '/products', query: { categoryName } });
 }
 
 </script>

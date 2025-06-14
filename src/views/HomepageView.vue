@@ -16,7 +16,7 @@
     <div class="description-section">
       <hr class="divider" />
       <div class="most-accessed-categories">Categorias mais acessadas</div>
-      <ProductImageCarousel :products="products" />
+      <ProductImageCarousel :products="categories"/>
       <hr class="divider" />
       <div class="best-sellers">Mais acessados</div>
       <div class="cards-container" v-if="withoutMock">
@@ -30,17 +30,50 @@
 
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { productService } from '../services/productService';
 import { type ListProductDTO, type ListProductsResponse, type ProductDTO } from '../dtos/productDto';
 import ProductImageCarousel from '../components/ProductImageCarousel.vue';
 import ProductCard from '../components/ProductCard.vue';
 
-const product = ref<ProductDTO | null>(null);
-const products = ref<ProductDTO[]>([]);
 const withoutMock = ref<ListProductsResponse | null>(null);
+const categories = ref<ProductDTO[]>([]);
+const router = useRouter();
 
 onMounted(async () => {
+
+    const capybara = {
+    id: 'mock-3',
+    name: 'Animes',
+    categoryName: 'Animes',
+    productImages: 
+       [{  url: 'https://i.etsystatic.com/50958232/r/il/da0600/5855239846/il_fullxfull.5855239846_bezk.jpg' }]
+    
+  };
+ 
+  const skull = {
+    id: 'mock-3',
+    name: 'Animais',
+    categoryName: 'Animais',
+    productImages: 
+       [{  url: 'https://things.3dfila.com.br/img/54910.jpg' }]
+    
+  };
+
+  const axolot = {
+    id: 'mock-3',
+    name: 'Jogos',
+    categoryName: 'Jogos',
+    productImages: 
+       [{  url: 'https://netrinoimages.s3.eu-west-2.amazonaws.com/2021/09/24/954367/368341/kirby_3d_model_c4d_max_obj_fbx_ma_lwo_3ds_3dm_stl_3822958.jpg' }]
+    
+  };
+
+  categories.value = [
+    capybara,
+    skull,
+    axolot
+  ];
 
   try {
     withoutMock.value = await productService.list({
