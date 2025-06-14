@@ -31,7 +31,7 @@
             <div class="cart-details">
               <p class="product-name">{{ product.name }}</p>
               <p class="product-price">R$ {{ (product.price).toFixed(2) }}</p>
-              <button class="button">Editar produto</button>
+              <button class="button" @click="goToEditProduct(product.id)">Editar produto</button>
               <button 
                 class="button delete" 
                 style="background-color: indianred;" 
@@ -90,6 +90,10 @@ async function fetchProducts() {
 function handlePageChange(page: number) {
   currentPage.value = page
   fetchProducts()
+}
+
+function goToEditProduct(id: string) {
+  router.push(`/editproduct/${id}`)
 }
 
 async function deleteProduct(id: string) {
