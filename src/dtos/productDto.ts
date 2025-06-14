@@ -19,3 +19,23 @@ export interface ProductDTO {
   categoryId: string;
   productImages: ProductImageDTO[];
 }
+
+export type ListProductsResponse = {
+  items: ListProductDTO[];
+  total: number;
+  page: number;
+  limit: number;
+};
+
+export interface ListProductDTO {
+  id: string;
+  name: string;
+  categoryName: string;
+  price: number;
+  mainImageUrl: string;
+  fileUrl: string;
+}
+
+export type ApiResponse<T> = {
+  data: T;
+};

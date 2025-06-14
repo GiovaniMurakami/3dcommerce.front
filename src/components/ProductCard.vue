@@ -1,9 +1,9 @@
 <template>
   <div class="product-card-container" @click="goToProduct(product.id)">
-    <img class="product-card-image" :src="product.productImages[0]?.url" :alt="product.name" />
+    <img class="product-card-image" :src="product.mainImageUrl" :alt="product.name" />
     <div class="product-info-container">
       <div class="product-category">
-        <p>{{ product.category }}</p>
+        <p>{{ product.categoryName }}</p>
       </div>
       <p>{{ product.name }}</p>
     </div>
@@ -13,10 +13,10 @@
 
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import type { ProductDTO } from '../dtos/productDto';
+import type { ListProductDTO } from '../dtos/productDto';
 
 defineProps<{
-  product: ProductDTO;
+  product: ListProductDTO;
 }>();
 
 const router = useRouter();
@@ -31,7 +31,14 @@ function goToProduct(id: string) {
   border: 1px solid #ccc;
   width: 16.67%;
   border-radius: 10px;
+  cursor: pointer; /* deixa o cursor de mãozinha */
+  transition: transform 0.2s ease; /* transição suave para o efeito */
 }
+
+.product-card-container:hover {
+  transform: scale(1.05); /* aumenta 5% */
+}
+
 
 .product-card-image {
   width: 100%;
