@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { ApiResponse, ListProductDTO, ListProductsResponse, ProductDTO } from '../dtos/productDto';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_ADDRESS,
 });
 
 type ListProductsParams = {
