@@ -86,9 +86,12 @@ onMounted(async () => {
 
   try {
     product.value = await productService.getById(id);
-    mostAcessedProducts.value = await productService.list({
-      limit: 10
+    const response = await productService.list({
+      limit: 5,
+      sortBy: "views",
+      sortDir: "desc"
     });
+    mostAcessedProducts.value = response.data;
   } catch (error) {
     console.error('Erro ao carregar o produto:', error);
   }

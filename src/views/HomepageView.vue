@@ -76,10 +76,11 @@ onMounted(async () => {
   ];
 
   try {
-    withoutMock.value = await productService.list({
+    const response = await productService.list({
       sortBy: "views",
       sortDir: "desc",
     });
+    withoutMock.value = response.data ;
   } catch (error) {
     console.error('Erro ao carregar o produto:', error);
   }

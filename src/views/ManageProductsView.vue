@@ -2,206 +2,114 @@
   <div class="description-section">
     <hr class="divider" />
     <div class="most-accessed-categories">Gerenciar produtos</div>
-    <div style="display: flex;">    <div class="search-bar">
+
+    <div style="display: flex; margin-bottom: 32px">
+      <div class="search-bar">
         <input 
           type="text" 
+          v-model="searchTerm"
           placeholder="Pesquisar..."
+          @input="fetchProducts"
         />
       </div>
-    <button class="button">Criar novo produto</button></div>
+      <button class="button" @click="router.push('/createproduct')">Criar novo produto</button>
+    </div>
 
     <div class="cart-container">
       <div class="cart-list" v-if="products.length">
-        <div class="cart-list-content">
-          <div class="cart-items">
-            <div v-for="(product, index) in newProducts" :key="product.id" class="cart-item">
-              <img 
-                :src="product.productImages?.[0]?.url || 'https://via.placeholder.com/60'" 
-                alt="Imagem do produto" 
-                class="cart-image" 
-              />
-              <div class="cart-details">
-                <p class="product-name">{{ product.name }}</p>
-                <p class="product-desc">{{ product.description || 'Sem descrição disponível.' }}</p>
-                <p class="product-price">R$ {{ (product.price * product.quantity).toFixed(2) }}</p>
-                <button @click="removeItem(index)" class="button">Editar produto</button>
-                <button @click="removeItem(index)" class="button" style="background-color: indianred;">Excluir produto</button>
-              </div>
+        <div class="cart-items">
+          <div 
+            v-for="product in products" 
+            :key="product.id" 
+            class="cart-item"
+          >
+            <img 
+              :src="product.mainImageUrl || 'https://via.placeholder.com/60'" 
+              alt="Imagem do produto" 
+              class="cart-image" 
+            />
+            <div class="cart-details">
+              <p class="product-name">{{ product.name }}</p>
+              <p class="product-price">R$ {{ (product.price).toFixed(2) }}</p>
+              <button class="button">Editar produto</button>
+              <button 
+                class="button delete" 
+                style="background-color: indianred;" 
+                @click="deleteProduct(product.id)"
+              >
+                Excluir produto
+              </button>
             </div>
           </div>
-        </div>    
-        <Pagination :totalItems="mockItems.length" :itemsPerPage="5" @pageChanged="handlePageChange" />
+        </div>
+
+        <Pagination 
+          :totalItems="totalItems" 
+          :itemsPerPage="itemsPerPage" 
+          @pageChanged="handlePageChange" 
+        />
       </div>
-      
+
       <div v-else>
-        <p>Carrinho vazio.</p>
+        <p>Nenhum produto encontrado.</p>
       </div>
     </div>
   </div>
 </template>
+
  
 <script setup lang="ts">
-import { onMounted, ref, computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { ref, onMounted } from 'vue'
 import { productService } from '../services/productService'
+import Pagination from '../components/Pagination.vue'
 import type { ProductDTO } from '../dtos/productDto'
-import ProductCard from '../components/ProductCard.vue';
-import Pagination from '../components/Pagination.vue';
+import { useRouter } from 'vue-router'
 
-const mockItems = Array.from({ length: 30 }, (_, i) => ({
-  id: i + 1,
-  name: `Produto ${i + 1}`,
-}));
+const router = useRouter()
+const products = ref<ProductDTO[]>([])
+const currentPage = ref(1)
+const itemsPerPage = 5
+const totalItems = ref(0)
+const searchTerm = ref('')
 
-const currentPage = ref(1);
-const itemsPerPage = 5;
+async function fetchProducts() {
+  try {
+    const { data, total } = await productService.list({
+      page: currentPage.value,
+      limit: itemsPerPage,
+      name: searchTerm.value || undefined
+    })
 
-const pagedItems = computed(() =>
-  mockItems.slice(
-    (currentPage.value - 1) * itemsPerPage,
-    currentPage.value * itemsPerPage
-  )
-);
+    products.value = data
+    totalItems.value = total
+  } catch (error) {
+    console.error('Erro ao carregar produtos:', error)
+  }
+}
 
 function handlePageChange(page: number) {
-  currentPage.value = page;
+  currentPage.value = page
+  fetchProducts()
 }
-const route = useRoute()
-const mostAcessedProducts = ref<ProductDTO[]>([]);
-const product = ref<ProductDTO | null>(null);
-const products = ref<ProductDTO[]>([]);
-const newProducts = ref<ProductDTO[]>([]);
- 
-onMounted(async () => {
-  const id = route.params.id as string;
-  const fetchedProduct = await productService.getById(id);
-  const capybara = {
-    ...fetchedProduct,
-    id: 'mock-2',
-    quantity: 1,
-    name: 'Capivara',
-    productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/capybara.png' } : { ...img }
-    )
-  };
 
-  const skull = {
-    ...fetchedProduct,
-    id: 'mock-3',
-    quantity: 1,
-    name: 'Caveira',
-    productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/skull.png' } : { ...img }
-    )
-  };
-
-    const dog = {
-    ...fetchedProduct,
-    id: 'mock-3',
-    quantity: 1,
-    name: 'Caveira',
-    productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/skull.png' } : { ...img }
-    )
-  };
-
-    const handOne = {
-    ...fetchedProduct,
-    id: 'mock-3',
-    quantity: 1,
-    name: 'Caveira',
-    productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/skull.png' } : { ...img }
-    )
-  };
-
-    const handTwo = {
-    ...fetchedProduct,
-    id: 'mock-3',
-    quantity: 1,
-    name: 'Caveira',
-    productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/skull.png' } : { ...img }
-    )
-  };
-
-    const pingent = {
-    ...fetchedProduct,
-    id: 'mock-3',
-    quantity: 1,
-    name: 'Caveira',
-    productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/skull.png' } : { ...img }
-    )
-  };
-
-    const axolot = {
-    ...fetchedProduct,
-    id: 'mock-3',
-    quantity: 1,
-    name: 'Caveira',
-    productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/skull.png' } : { ...img }
-    )
-  };
-
-    const mug = {
-    ...fetchedProduct,
-    id: 'mock-3',
-    quantity: 1,
-    name: 'Caveira',
-    productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/skull.png' } : { ...img }
-    )
-  };
-  
-  products.value = [capybara, skull];
+async function deleteProduct(id: string) {
   try {
-    product.value = await productService.getById(id);
-    mostAcessedProducts.value = await productService.list();
-    newProducts.value = await productService.list();
+    await productService.deleteById(id);
+    await fetchProducts();
   } catch (error) {
-    console.error('Erro ao carregar o produto:', error);
-  }
-});
-
-function increaseQuantity(index: number) {
-  products.value[index].quantity = (products.value[index].quantity || 1) + 1;
-}
- 
-function decreaseQuantity(index: number) {
-  if (products.value[index].quantity && products.value[index].quantity > 1) {
-    products.value[index].quantity--;
+    console.error('Erro ao excluir produto:', error);
   }
 }
- 
-function removeItem(index: number) {
-  products.value.splice(index, 1);
-}
- 
-const totalCartValue = computed(() =>
-  products.value.reduce((sum, p) => sum + (p.price * (p.quantity || 1)), 0)
-);
 
-function buy() {
-  const messageItems = products.value.map(product => {
-    const totalItem = (product.price * product.quantity).toFixed(2);
-    return `${product.name}:\nQuantidade: ${product.quantity}\nValor: R$ ${totalItem}`;
-  }).join('\n\n');
-
-  const totalCompra = totalCartValue.value.toFixed(2);
-  const message = `
-Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n\nTotal: R$ ${totalCompra}
-`.trim();
-
-  const whatsappNumber = '5519997585697';
-  const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
-  
-  window.open(url, '_blank');
-}
+onMounted(fetchProducts)
 </script>
+
  
 <style scoped>
+.delete {
+  margin-left: 8px;
+}
+
 .divider {
   border: none;
   height: 1px;
@@ -277,7 +185,7 @@ Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n
   display: flex;
   align-items: center;
   gap: 24px;
-  background-color: #f3f3f3;
+  background-color: #dfdfdf;
   padding: 10px;
   border-radius: 12px;
 }

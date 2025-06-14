@@ -3,7 +3,7 @@
         <div class="admin-area-container">
             <h1 class="admin-title">Área Administrativa</h1>
             <button class="create-product-btn" @click="goToCreateProduct">
-                Criar Produto
+                Gerenciar Produtos
             </button>
             <button class="manage-category-btn" @click="goToManageCategories">
                 Gerenciar Categorias
@@ -31,7 +31,7 @@ onMounted(async () => {
 })
 
 function goToCreateProduct() {
-    router.push('/createproduct')
+    router.push('/products/management')
 }
 
 function goToManageCategories() {

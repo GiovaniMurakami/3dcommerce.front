@@ -100,7 +100,8 @@ onMounted(async () => {
   products.value = JSON.parse(localStorage.getItem('cart') || '[]');
 
   try {
-    mostAcessedProducts.value = await productService.list();
+    const response = await productService.list();
+    mostAcessedProducts.value = response.data;
   } catch (error) {
     console.error('Erro ao carregar produtos:', error);
   }
