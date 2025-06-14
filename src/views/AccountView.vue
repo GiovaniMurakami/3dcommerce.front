@@ -11,10 +11,6 @@
         <form class="profile-form">
           <input v-model="user.fullName" type="text" placeholder="Nome completo" class="input" disabled />
           <input v-model="user.email" type="email" placeholder="Email" class="input" disabled />
-          <input v-model="user.cpf" type="text" placeholder="CPF" class="input" disabled />
-          <input v-model="user.phone" type="text" placeholder="Telefone" class="input" disabled />
-          <input v-model="user.customerProfile.address" type="text" placeholder="Endereço" class="input" disabled />
-          <input v-model="user.customerProfile.city" type="text" placeholder="Cidade" class="input" disabled />
         </form>
       </div>
 
@@ -32,7 +28,7 @@
 import { ref, onMounted } from 'vue'
 import api from '../services/api'
 import { useRouter } from 'vue-router'
-import imagePath from '/public/images/renato.jpg'
+import imagePath from '/icons/account.svg'
 
 const router = useRouter()
 

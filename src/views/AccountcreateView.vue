@@ -16,17 +16,6 @@
           <span v-if="valid.email === false" class="error-msg">Email inválido</span>
         </div>
 
-        <div class="input-group">
-          <input v-model="form.cpf" :class="inputClass(valid.cpf)" @blur="validateField('cpf')" type="text"
-            placeholder="CPF" required />
-          <span v-if="valid.cpf === false" class="error-msg">CPF inválido</span>
-        </div>
-
-        <div class="input-group">
-          <input v-model="form.phone" :class="inputClass(valid.phone)" @blur="validateField('phone')" type="text"
-            placeholder="Telefone" required />
-          <span v-if="valid.phone === false" class="error-msg">Telefone inválido</span>
-        </div>
 
         <div class="password-group">
           <input v-model="form.password" :class="inputClass(valid.password)" @blur="validateField('password')"
@@ -65,18 +54,6 @@
           <span v-if="valid.confirmPassword === false" class="error-msg">Senhas não conferem</span>
         </div>
 
-        <div class="input-group">
-          <input v-model="form.customerProfile.address" :class="inputClass(valid.address)"
-            @blur="validateField('address')" type="text" placeholder="Endereço" required />
-          <span v-if="valid.address === false" class="error-msg">Endereço obrigatório</span>
-        </div>
-
-        <div class="input-group">
-          <input v-model="form.customerProfile.city" :class="inputClass(valid.city)" @blur="validateField('city')"
-            type="text" placeholder="Cidade" required />
-          <span v-if="valid.city === false" class="error-msg">Cidade obrigatória</span>
-        </div>
-
         <button type="submit" class="submit-button" :disabled="!isFormValid">
           Cadastrar
         </button>
@@ -113,25 +90,15 @@ function validatePassword(password) {
 const form = reactive({
   email: '',
   fullName: '',
-  cpf: '',
-  phone: '',
   password: '',
   confirmPassword: '',
-  customerProfile: {
-    address: '',
-    city: ''
-  }
 })
 
 const valid = reactive({
   email: null,
   fullName: null,
-  cpf: null,
-  phone: null,
   password: null,
   confirmPassword: null,
-  address: null,
-  city: null
 })
 
 function validateField(field) {
@@ -142,23 +109,11 @@ function validateField(field) {
     case 'fullName':
       valid.fullName = form.fullName.trim().length > 2
       break
-    case 'cpf':
-      valid.cpf = validateCPF(form.cpf)
-      break
-    case 'phone':
-      valid.phone = validatePhone(form.phone)
-      break
     case 'password':
       valid.password = validatePassword(form.password)
       break
     case 'confirmPassword':
       valid.confirmPassword = form.password === form.confirmPassword && form.confirmPassword.length > 0
-      break
-    case 'address':
-      valid.address = form.customerProfile.address.trim().length > 0
-      break
-    case 'city':
-      valid.city = form.customerProfile.city.trim().length > 0
       break
   }
 }
@@ -166,12 +121,8 @@ function validateField(field) {
 const isFormValid = computed(() =>
   valid.email &&
   valid.fullName &&
-  valid.cpf &&
-  valid.phone &&
   valid.password &&
-  valid.confirmPassword &&
-  valid.address &&
-  valid.city
+  valid.confirmPassword
 )
 
 function inputClass(status) {
@@ -189,13 +140,7 @@ async function handleSubmit() {
   const payload = {
     email: form.email,
     fullName: form.fullName,
-    cpf: form.cpf,
-    phone: form.phone,
-    password: form.password,
-    customerProfile: {
-      address: form.customerProfile.address,
-      city: form.customerProfile.city
-    }
+    password: form.password
   }
   try {
     const response = await api.post('/users', payload)
