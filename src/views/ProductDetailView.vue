@@ -2,9 +2,9 @@
   <div class="page-container">
     <div class="product-section">
       <div class="product-images-container">
-        <div class="main-image">
-          <ModelViewer :modelPath=modelPath class="modal-content" />
-        </div>
+      <div class="main-image">
+        <ModelViewer v-if="product && product.fileUrl" :modelPath="product.fileUrl" class="modal-content" />
+      </div>
         <div class="secondary-image-carousel-container">
           <img v-for="image in product?.productImages" :key="image.id" :src="image.url" class="secondary-image" />
         </div>
@@ -45,16 +45,13 @@
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import { productService } from '../services/productService';
-import type { ProductDTO } from '../dtos/productDto';
+import type { ListProductsResponse, ProductDTO } from '../dtos/productDto';
 import ProductCard from '../components/ProductCard.vue';
 import ModelViewer from '../components/threejs/ModelViewer.vue';
 
 const route = useRoute();
 const product = ref<ProductDTO | null>(null);
-const products = ref<ProductDTO[]>([]);
-const modelPath = "/models/axolot.stl"
-const mostAcessedProducts = ref<ProductDTO[]>([]);
-
+const mostAcessedProducts = ref<ListProductsResponse>();
 
 const cartButtonAnimated = ref(false);
 
@@ -76,7 +73,6 @@ const addToCart = () => {
     cart.push(minimalProduct);
   }
   localStorage.setItem('cart', JSON.stringify(cart));
-  // Dispara evento para atualizar o Header e outros componentes reativos
   window.dispatchEvent(new Event('storage'));
 
   cartButtonAnimated.value = true;
@@ -87,32 +83,12 @@ const addToCart = () => {
 
 onMounted(async () => {
   const id = route.params.id as string;
-  const fetchedProduct = await productService.getById(id);
-  const capybara = {
-    ...fetchedProduct,
-    id: 'mock-2',
-    name: 'Capivara',
-    productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/capybara.png' } : { ...img }
-    )
-  };
 
-  const skull = {
-    ...fetchedProduct,
-    id: 'mock-3',
-    name: 'Caveira',
-    productImages: fetchedProduct.productImages.map((img, index) =>
-      index === 0 ? { ...img, url: '/images/skull.png' } : { ...img }
-    )
-  };
-
-  products.value = [
-    skull,
-    capybara,
-  ];
   try {
     product.value = await productService.getById(id);
-    mostAcessedProducts.value = await productService.list();
+    mostAcessedProducts.value = await productService.list({
+      limit: 10
+    });
   } catch (error) {
     console.error('Erro ao carregar o produto:', error);
   }
