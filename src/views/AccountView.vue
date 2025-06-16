@@ -18,6 +18,9 @@
         <button v-if="user.role === 'ADMIN'" class="admin-button" @click="goToAdmin">
           Área Administrativa
         </button>
+        <button v-if="user.role === 'CUSTOMER'" class="orders-button" @click="goToOrders">
+          Ver pedidos
+        </button>
         <button class="logout-button" @click="logout">Sair</button>
       </div>
     </div>
@@ -63,6 +66,10 @@ function logout() {
 
 function goToAdmin() {
   router.push('/admin')
+}
+
+function goToOrders() {
+  router.push('/orders')
 }
 
 onMounted(fetchUser)
@@ -211,6 +218,24 @@ onMounted(fetchUser)
 
 .admin-button:hover {
   background: linear-gradient(90deg, #4caf50 0%, #7b9acc 100%);
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.18);
+}
+
+.orders-button {
+  background: linear-gradient(90deg, #4caf50 0%, #7b9acc 100%);
+  color: #fff;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.3s, box-shadow 0.3s;
+  font-size: 1rem;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.08);
+}
+
+.orders-button:hover {
+  background: linear-gradient(90deg, #7b9acc 0%, #4caf50 100%);
   box-shadow: 0 4px 16px rgba(76, 175, 80, 0.18);
 }
 

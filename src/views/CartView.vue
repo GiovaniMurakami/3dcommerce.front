@@ -26,7 +26,7 @@
           <div class="cart-total">
             <strong>Total:</strong>
             <strong class="total-value">R$ {{ totalCartValue.toFixed(2) }}</strong>
-            <button @click="buy" class="buy-button">Comprar</button>
+            <button @click="openBuyModal" class="buy-button">Comprar</button>
           </div>
         </div>
       </div>
@@ -57,18 +57,54 @@
     </div>
   </div>
 
+  <!-- Modal de confirmação de compra -->
+  <div v-if="showBuyModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Confirmar Pedido</h3>
+      <p>
+        Seu pedido será registrado e você será redirecionado para o WhatsApp para finalizar a compra.<br>
+        Confirma o envio do pedido?
+      </p>
+      <div class="modal-actions">
+        <button @click="confirmBuy" class="buy-button" :disabled="buyLoading">
+          {{ buyLoading ? 'Enviando...' : 'Confirmar e ir para WhatsApp' }}
+        </button>
+        <button @click="closeBuyModal" class="modal-cancel">Cancelar</button>
+      </div>
+      <div v-if="buyError" class="error-msg">{{ buyError }}</div>
+    </div>
+  </div>
+
+  <!-- Modal de sucesso -->
+  <div v-if="showSuccessModal" class="modal-overlay">
+    <div class="modal-content">
+      <h3>Pedido realizado!</h3>
+      <p>Seu pedido foi registrado com sucesso.<br>
+        Agora você será redirecionado para o WhatsApp para finalizar a compra.</p>
+      <div class="modal-actions">
+        <button @click="goToWhatsapp" class="buy-button">Ir para WhatsApp</button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { productService } from '../services/productService'
 import type { ProductDTO } from '../dtos/productDto'
-import ProductCard from '../components/ProductCard.vue';
+import ProductCard from '../components/ProductCard.vue'
+import api from '../services/api'
 
 const mostAcessedProducts = ref<ProductDTO[]>([]);
 const products = ref<ProductDTO[]>([]);
 const showRemoveModal = ref(false);
 const removeIndex = ref<number | null>(null);
+
+const showBuyModal = ref(false);
+const buyLoading = ref(false);
+const buyError = ref('');
+const showSuccessModal = ref(false);
+let whatsappUrl = '';
 
 function askRemoveItem(index: number) {
   removeIndex.value = index;
@@ -125,21 +161,62 @@ const totalCartValue = computed(() =>
   products.value.reduce((sum, p) => sum + (p.price * (p.quantity || 1)), 0)
 );
 
-function buy() {
-  const messageItems = products.value.map(product => {
-    const totalItem = (product.price * product.quantity).toFixed(2);
-    return `${product.name}:\nQuantidade: ${product.quantity}\nValor: R$ ${totalItem}`;
-  }).join('\n\n');
+// Modal de compra
+function openBuyModal() {
+  buyError.value = '';
+  showBuyModal.value = true;
+}
+function closeBuyModal() {
+  showBuyModal.value = false;
+  buyError.value = '';
+}
 
-  const totalCompra = totalCartValue.value.toFixed(2);
-  const message = `
+async function confirmBuy() {
+  buyLoading.value = true;
+  buyError.value = '';
+  try {
+    const items = products.value.map(product => ({
+      productId: product.id,
+      quantity: product.quantity
+    }));
+    const token = localStorage.getItem('accessToken');
+    await api.post('/orders', { items }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    // Monta mensagem para WhatsApp
+    const messageItems = products.value.map(product => {
+      const totalItem = (product.price * product.quantity).toFixed(2);
+      return `${product.name}:\nQuantidade: ${product.quantity}\nValor: R$ ${totalItem}`;
+    }).join('\n\n');
+    const totalCompra = totalCartValue.value.toFixed(2);
+    const message = `
 Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n\nTotal: R$ ${totalCompra}
 `.trim();
 
-  const whatsappNumber = '5519997585697';
-  const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    const whatsappNumber = '5519997585697';
+    whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
-  window.open(url, '_blank');
+    // Limpa carrinho
+    products.value = [];
+    localStorage.removeItem('cart');
+    window.dispatchEvent(new Event('storage'));
+
+    showBuyModal.value = false;
+    showSuccessModal.value = true;
+  } catch (e) {
+    buyError.value = 'Erro ao registrar pedido. Tente novamente.';
+  } finally {
+    buyLoading.value = false;
+  }
+}
+
+function goToWhatsapp() {
+  showSuccessModal.value = false;
+  window.open(whatsappUrl, '_blank');
 }
 </script>
 
@@ -324,28 +401,80 @@ Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n
 
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.25);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 }
+
 .modal-content {
   background: #fff;
+  padding: 2rem 1.5rem;
   border-radius: 12px;
-  padding: 32px 24px 24px 24px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-  min-width: 300px;
+  box-shadow: 0 4px 24px rgba(31, 38, 135, 0.13);
+  min-width: 320px;
   max-width: 90vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  align-items: stretch;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.buy-button {
+  background: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.buy-button:hover {
+  background: #388e3c;
+}
+
+.modal-cancel {
+  background: #bdbdbd;
+  color: #222;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.modal-cancel:hover {
+  background: #888;
+}
+
+.error-msg {
+  color: #e53935;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
   text-align: center;
 }
+
 .modal-actions {
   margin-top: 24px;
   display: flex;
   gap: 16px;
   justify-content: center;
 }
+
 .modal-confirm {
   background: #d32f2f;
   color: #fff;
@@ -356,9 +485,11 @@ Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .modal-confirm:hover {
   background: #b71c1c;
 }
+
 .modal-cancel {
   background: #eee;
   color: #333;
@@ -369,6 +500,7 @@ Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .modal-cancel:hover {
   background: #ccc;
 }
