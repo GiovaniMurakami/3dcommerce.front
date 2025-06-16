@@ -1,14 +1,27 @@
 <template>
     <div class="orders-outer">
         <div class="orders-container">
-            <h1 class="orders-title">Gerenciar Pedidos</h1>
+            <h1 class="orders-title">Visualizar Pedidos</h1>
+            <div class="orders-filter">
+                <label for="statusFilter">Filtrar por status:</label>
+                <select id="statusFilter" v-model="selectedStatus">
+                    <option value="">Todos</option>
+                    <option value="WAITING_CONFIRMATION">Aguardando Confirmação</option>
+                    <option value="PRINTING">Imprimindo</option>
+                    <option value="SHIPPED">Enviado</option>
+                    <option value="DELIVERED">Entregue</option>
+                    <option value="CANCELED">Cancelado</option>
+                </select>
+            </div>
             <div v-if="loading" class="loading">Carregando...</div>
             <div v-else>
-                <div v-if="orders.length" class="orders-list">
-                    <div v-for="order in orders" :key="order.id" class="order-item">
+                <div v-if="filteredOrders.length" class="orders-list">
+                    <div v-for="order in filteredOrders" :key="order.id" class="order-item">
                         <div class="order-header">
                             <span class="order-id">Pedido #{{ order.id }}</span>
-                            <span class="order-status">Status: {{ statusLabel(order.currentStatus) }}</span>
+                            <span class="order-status" :class="statusClass(order.currentStatus)">
+                                Status: {{ statusLabel(order.currentStatus) }}
+                            </span>
                             <span class="order-date">{{ formatDate(order.createdAt) }}</span>
                         </div>
                         <div class="order-products">
@@ -52,12 +65,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import api from '../services/api'
 
 const orders = ref([])
 const loading = ref(false)
 const products = ref({})
+const selectedStatus = ref('')
 
 onMounted(fetchOrders)
 
@@ -70,7 +84,6 @@ async function fetchOrders() {
         })
         orders.value = response.data.data || []
 
-        // Buscar detalhes dos produtos de todos os pedidos
         const productIds = [
             ...new Set(
                 orders.value.flatMap(order =>
@@ -81,7 +94,6 @@ async function fetchOrders() {
         for (const id of productIds) {
             try {
                 const prodRes = await api.get(`/products/${id}`)
-                // Adiciona mainImageUrl para facilitar o acesso
                 const product = prodRes.data
                 products.value[id] = {
                     ...product,
@@ -98,6 +110,11 @@ async function fetchOrders() {
     }
 }
 
+const filteredOrders = computed(() => {
+    if (!selectedStatus.value) return orders.value
+    return orders.value.filter(order => order.currentStatus === selectedStatus.value)
+})
+
 function formatDate(dateStr) {
     if (!dateStr) return ''
     const date = new Date(dateStr)
@@ -107,9 +124,22 @@ function formatDate(dateStr) {
 function statusLabel(status) {
     switch (status) {
         case 'WAITING_CONFIRMATION': return 'Aguardando Confirmação'
-        case 'CONFIRMED': return 'Confirmado'
-        case 'CANCELLED': return 'Cancelado'
+        case 'PRINTING': return 'Imprimindo'
+        case 'SHIPPED': return 'Enviado'
+        case 'DELIVERED': return 'Entregue'
+        case 'CANCELED': return 'Cancelado'
         default: return status
+    }
+}
+
+function statusClass(status) {
+    switch (status) {
+        case 'WAITING_CONFIRMATION': return 'status-waiting'
+        case 'PRINTING': return 'status-printing'
+        case 'SHIPPED': return 'status-shipped'
+        case 'DELIVERED': return 'status-delivered'
+        case 'CANCELED': return 'status-canceled'
+        default: return ''
     }
 }
 </script>
@@ -145,6 +175,32 @@ function statusLabel(status) {
     text-align: center;
 }
 
+.orders-filter {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.orders-filter label {
+    font-weight: 500;
+    color: #2d3a4b;
+}
+
+.orders-filter select {
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    border: 1px solid #bdbdbd;
+    font-size: 1rem;
+    background: #f7f7f7;
+    transition: border-color 0.2s;
+}
+
+.orders-filter select:focus {
+    border-color: #4caf50;
+    outline: none;
+}
+
 .loading {
     text-align: center;
     font-size: 1.1rem;
@@ -177,9 +233,46 @@ function statusLabel(status) {
     font-weight: bold;
 }
 
+/* Status stylings */
 .order-status {
-    color: #4caf50;
-    font-weight: 500;
+    font-weight: 600;
+    padding: 0.35em 1em;
+    border-radius: 16px;
+    font-size: 1rem;
+    display: inline-block;
+    min-width: 170px;
+    text-align: center;
+    transition: background 0.2s, color 0.2s;
+}
+
+.status-waiting {
+    background: #fffbe6;
+    color: #bfa100;
+    border: 1px solid #ffe066;
+}
+
+.status-printing {
+    background: #e3f2fd;
+    color: #1976d2;
+    border: 1px solid #90caf9;
+}
+
+.status-shipped {
+    background: #e8f5e9;
+    color: #388e3c;
+    border: 1px solid #a5d6a7;
+}
+
+.status-delivered {
+    background: #f1f8e9;
+    color: #689f38;
+    border: 1px solid #c5e1a5;
+}
+
+.status-canceled {
+    background: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
 }
 
 .order-date {
