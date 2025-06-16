@@ -11,6 +11,7 @@ import AdministrativeArea from '../views/AdministrativeArea.vue';
 import CreateProductView from '../views/CreateProductView.vue';
 import ManageCategoriesView from '../views/ManageCategoriesView.vue';
 import ManageOrdersView from '../views/ManageOrdersView.vue';
+import ManageOrdersAdminView from '../views/ManageOrdersAdminView.vue';
 import EditProductView from '../views/EditProductView.vue';
 
 const routes = [
@@ -27,6 +28,7 @@ const routes = [
   { path: '/editproduct/:id', component: EditProductView, props: true, name: 'EditProductView' },
   { path: '/managecategories', component: ManageCategoriesView, props: true, name: 'ManageCategoriesView' },
   { path: '/orders', component: ManageOrdersView, props: true, name: 'ManageOrdersView' },
+  { path: '/manageOrders', component: ManageOrdersAdminView, props: true, name: 'ManageOrdersAdminView' },
   { path: '/:pathMatch(.*)*', redirect: '/' }
 ];
 
