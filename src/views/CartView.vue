@@ -42,8 +42,17 @@
     </div>
 
     <div class="cards-container">
-      <ProductCard v-for="product in mostAcessedProducts" :key="product.id" :product="product" />
+      <template v-if="isLoadingOthers">
+        <SkeletonCard v-for="n in 4" :key="n" />
+      </template>
+      <template v-else-if="mostAcessedProducts.length === 0">
+        <p>Nenhum produto encontrado.</p>
+      </template>
+      <template v-else>
+        <ProductCard v-for="product in mostAcessedProducts" :key="product.id" :product="product" />
+      </template>
     </div>
+
   </div>
 
   <div v-if="showRemoveModal" class="modal-overlay">
@@ -64,11 +73,14 @@ import { onMounted, ref, computed } from 'vue'
 import { productService } from '../services/productService'
 import type { ProductDTO } from '../dtos/productDto'
 import ProductCard from '../components/ProductCard.vue';
+import SkeletonCard from '../components/skeletons/SkeletonCard.vue';
 
 const mostAcessedProducts = ref<ProductDTO[]>([]);
 const products = ref<ProductDTO[]>([]);
 const showRemoveModal = ref(false);
 const removeIndex = ref<number | null>(null);
+const isLoadingCart = ref(true);
+const isLoadingOthers = ref(true);
 
 function askRemoveItem(index: number) {
   removeIndex.value = index;
@@ -97,15 +109,24 @@ onMounted(() => {
 });
 
 onMounted(async () => {
-  products.value = JSON.parse(localStorage.getItem('cart') || '[]');
+  try {
+    products.value = JSON.parse(localStorage.getItem('cart') || '[]');
+  } finally {
+    isLoadingCart.value = false;
+  }
+});
 
+onMounted(async () => {
   try {
     const response = await productService.list();
     mostAcessedProducts.value = response.data;
   } catch (error) {
     console.error('Erro ao carregar produtos:', error);
+  } finally {
+    isLoadingOthers.value = false;
   }
 });
+
 
 function increaseQuantity(index: number) {
   products.value[index].quantity = (products.value[index].quantity || 1) + 1;
@@ -324,28 +345,34 @@ Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n
 
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0,0,0,0.25);
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
 }
+
 .modal-content {
   background: #fff;
   border-radius: 12px;
   padding: 32px 24px 24px 24px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
   min-width: 300px;
   max-width: 90vw;
   text-align: center;
 }
+
 .modal-actions {
   margin-top: 24px;
   display: flex;
   gap: 16px;
   justify-content: center;
 }
+
 .modal-confirm {
   background: #d32f2f;
   color: #fff;
@@ -356,9 +383,11 @@ Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .modal-confirm:hover {
   background: #b71c1c;
 }
+
 .modal-cancel {
   background: #eee;
   color: #333;
@@ -369,6 +398,7 @@ Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n
   cursor: pointer;
   transition: background 0.2s;
 }
+
 .modal-cancel:hover {
   background: #ccc;
 }

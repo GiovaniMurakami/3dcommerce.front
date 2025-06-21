@@ -2,9 +2,9 @@
   <div class="page-container">
     <div class="product-section">
       <div class="product-images-container">
-      <div class="main-image">
-        <ModelViewer v-if="product && product.fileUrl" :modelPath="product.fileUrl" class="modal-content" />
-      </div>
+        <div class="main-image">
+          <ModelViewer v-if="product && product.fileUrl" :modelPath="product.fileUrl" class="modal-content" />
+        </div>
         <div class="secondary-image-carousel-container">
           <img v-for="image in product?.productImages" :key="image.id" :src="image.url" class="secondary-image" />
         </div>
@@ -34,9 +34,19 @@
         <div class="small-title">Outros produtos</div>
       </div>
       <div class="cards-container">
-        <ProductCard v-for="product in mostAcessedProducts" :key="product.id" v-if="mostAcessedProducts"
-          :product="product" />
+        <template v-if="isLoading">
+          <SkeletonCard v-for="n in 4" :key="n" />
+        </template>
+
+        <template v-else-if="mostAcessedProducts?.length === 0">
+          <p>Nenhum produto encontrado.</p>
+        </template>
+
+        <template v-else>
+          <ProductCard v-for="product in mostAcessedProducts" :key="product.id" :product="product" />
+        </template>
       </div>
+
     </div>
   </div>
 </template>
@@ -48,10 +58,12 @@ import { productService } from '../services/productService';
 import type { ListProductsResponse, ProductDTO } from '../dtos/productDto';
 import ProductCard from '../components/ProductCard.vue';
 import ModelViewer from '../components/threejs/ModelViewer.vue';
+import SkeletonCard from '../components/skeletons/SkeletonCard.vue';
 
 const route = useRoute();
 const product = ref<ProductDTO | null>(null);
 const mostAcessedProducts = ref<ListProductsResponse>();
+const isLoading = ref(true);
 
 const cartButtonAnimated = ref(false);
 
@@ -94,6 +106,8 @@ onMounted(async () => {
     mostAcessedProducts.value = response.data;
   } catch (error) {
     console.error('Erro ao carregar o produto:', error);
+  } finally {
+    isLoading.value = false;
   }
 });
 </script>
@@ -143,12 +157,29 @@ onMounted(async () => {
 }
 
 @keyframes cart-bounce {
-  0%   { transform: scale(1); }
-  20%  { transform: scale(1.15); }
-  40%  { transform: scale(0.95); }
-  60%  { transform: scale(1.08); }
-  80%  { transform: scale(0.98); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  20% {
+    transform: scale(1.15);
+  }
+
+  40% {
+    transform: scale(0.95);
+  }
+
+  60% {
+    transform: scale(1.08);
+  }
+
+  80% {
+    transform: scale(0.98);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .page-container {

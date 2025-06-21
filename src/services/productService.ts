@@ -22,6 +22,8 @@ export const productService = {
   },
 
   async list(params?: ListProductsParams): Promise<ApiResponse<ListProductsResponse>> {
+      await new Promise(resolve => setTimeout(resolve, 1000)); // simula delay de 3 segundos
+
     const response = await api.get<ApiResponse<ListProductsResponse>>("/products", { params });
     return response.data;
   },

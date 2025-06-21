@@ -16,11 +16,7 @@
         Categoria:
         <select v-model="categoryName" @change="updateRoute">
           <option value="">Todas</option>
-          <option
-            v-for="category in categories"
-            :key="category.id"
-            :value="category.name"
-          >
+          <option v-for="category in categories" :key="category.id" :value="category.name">
             {{ category.name }}
           </option>
         </select>
@@ -29,18 +25,20 @@
 
     <div class="description-section">
       <div class="cards-container">
-        <ProductCard
-          v-for="product in mostAcessedProducts"
-          :key="product.id"
-          :product="product"
-        />
+        <template v-if="isLoading">
+          <SkeletonCard v-for="n in 8" :key="n" />
+        </template>
+
+        <template v-else-if="isEmpty">
+          <p>Nenhum produto encontrado.</p>
+        </template>
+
+        <template v-else>
+          <ProductCard v-for="product in mostAcessedProducts" :key="product.id" :product="product" />
+        </template>
       </div>
 
-      <Pagination
-        :totalItems="totalItems"
-        :itemsPerPage="itemsPerPage"
-        @pageChanged="handlePageChange"
-      />
+      <Pagination :totalItems="totalItems" :itemsPerPage="itemsPerPage" @pageChanged="handlePageChange" />
     </div>
   </div>
 </template>
@@ -54,6 +52,7 @@ import type { ProductDTO } from '../dtos/productDto';
 import type { CategoryDTO } from '../dtos/categoryDto';
 import ProductCard from '../components/ProductCard.vue';
 import Pagination from '../components/Pagination.vue';
+import SkeletonCard from '../components/skeletons/SkeletonCard.vue';
 
 const route = useRoute();
 const router = useRouter();
@@ -68,6 +67,8 @@ const productName = ref<string>((route.query.name as string) || '');
 const currentPage = ref(Number(route.query.page) || 1);
 const itemsPerPage = 8;
 const totalItems = ref(0);
+const isLoading = ref(true);
+const isEmpty = ref(false);
 
 async function fetchCategories() {
   try {
@@ -79,6 +80,8 @@ async function fetchCategories() {
 }
 
 async function fetchProducts() {
+  isLoading.value = true;
+  isEmpty.value = false;
   const [field, direction] = sortBy.value.split('_');
   try {
     const response = await productService.list({
@@ -91,8 +94,11 @@ async function fetchProducts() {
     });
     mostAcessedProducts.value = response.data;
     totalItems.value = response.total;
+    isEmpty.value = response.data.length === 0;
   } catch (error) {
     console.error('Erro ao carregar produtos:', error);
+  } finally {
+    isLoading.value = false;
   }
 }
 
