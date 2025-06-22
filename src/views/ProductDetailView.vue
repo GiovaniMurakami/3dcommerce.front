@@ -1,5 +1,9 @@
 <template>
   <div class="page-container">
+    <template v-if="isLoading">
+      <SkeletonProductDetail />
+    </template>
+    <template v-else>
     <div class="product-section">
       <div class="product-images-container">
         <div class="main-image">
@@ -13,7 +17,6 @@
         <h1>{{ product?.name }}</h1>
         <p>R$ {{ product?.price }}, valor aproximado para <br> peça de 15cm</p>
         <div class="product-buttons-container">
-          <button class="button">Encomendar</button>
           <button class="cart-button" :class="{ animated: cartButtonAnimated }" @click="addToCart">
             <img src="/icons/add-to-shopping-cart.svg" class="cart-icon">
           </button>
@@ -48,6 +51,7 @@
       </div>
 
     </div>
+    </template>
   </div>
 </template>
 
@@ -59,6 +63,7 @@ import type { ListProductsResponse, ProductDTO } from '../dtos/productDto';
 import ProductCard from '../components/ProductCard.vue';
 import ModelViewer from '../components/threejs/ModelViewer.vue';
 import SkeletonCard from '../components/skeletons/SkeletonCard.vue';
+import SkeletonProductDetail from '../components/skeletons/SkeletonProductDetail.vue'
 
 const route = useRoute();
 const product = ref<ProductDTO | null>(null);
@@ -285,7 +290,7 @@ onMounted(async () => {
   border-radius: 12px;
   padding: 0 16px;
   width: fit-content;
-  margin-bottom: 22px;
+  margin-bottom: 16px;
   align-items: center;
   display: flex;
 }
@@ -303,6 +308,7 @@ onMounted(async () => {
   padding: 0 16px;
   width: fit-content;
   align-items: center;
+  margin-bottom: 16px;
 }
 
 .product-description {

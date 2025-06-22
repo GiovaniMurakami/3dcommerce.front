@@ -26,7 +26,7 @@
           <div class="cart-total">
             <strong>Total:</strong>
             <strong class="total-value">R$ {{ totalCartValue.toFixed(2) }}</strong>
-            <button @click="buy" class="buy-button">Comprar</button>
+            <button @click="openBuyModal" class="buy-button">Comprar</button>
           </div>
         </div>
       </div>
@@ -55,24 +55,80 @@
 
   </div>
 
-  <div v-if="showRemoveModal" class="modal-overlay">
-    <div class="modal-content">
-      <h3>Remover item</h3>
-      <p>Tem certeza que deseja remover este item do carrinho?</p>
-      <div class="modal-actions">
-        <button @click="confirmRemoveItem" class="modal-confirm">Sim, remover</button>
-        <button @click="cancelRemoveItem" class="modal-cancel">Cancelar</button>
+  <transition name="modal-fade">
+    <div v-if="showRemoveModal" class="modal-overlay">
+      <div class="modal-content animated-modal">
+        <div class="modal-icon modal-remove-icon">
+          <svg width="44" height="44" fill="none" viewBox="0 0 44 44">
+            <circle cx="22" cy="22" r="20" stroke="#d32f2f" stroke-width="4" fill="#fff5f5" />
+            <path d="M15 15l14 14M29 15l-14 14" stroke="#d32f2f" stroke-width="4" stroke-linecap="round" />
+          </svg>
+        </div>
+        <h3>Remover item</h3>
+        <p>Tem certeza que deseja remover este item do carrinho?</p>
+        <div class="modal-actions modal-actions-row">
+          <button @click="confirmRemoveItem" class="modal-confirm">Sim, remover</button>
+          <button @click="cancelRemoveItem" class="modal-cancel">Cancelar</button>
+        </div>
       </div>
     </div>
-  </div>
+  </transition>
 
+  <transition name="modal-fade">
+    <div v-if="showBuyModal" class="modal-overlay">
+      <div class="modal-content animated-modal">
+        <div class="modal-icon modal-confirm-icon">
+          <svg width="48" height="48" fill="none" viewBox="0 0 48 48">
+            <circle cx="24" cy="24" r="22" stroke="#4caf50" stroke-width="4" fill="#eafaf1" />
+            <path d="M16 24l6 6 10-10" stroke="#4caf50" stroke-width="4" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </div>
+        <h3>Confirmar Pedido</h3>
+        <p>
+          Seu pedido será registrado e você será redirecionado para o WhatsApp para finalizar a compra.<br>
+          Confirma o envio do pedido?
+        </p>
+        <div class="modal-actions">
+          <button @click="confirmBuy" class="buy-button" :disabled="buyLoading">
+            {{ buyLoading ? 'Enviando...' : 'Confirmar e ir para WhatsApp' }}
+          </button>
+          <button @click="closeBuyModal" class="modal-cancel">Cancelar</button>
+        </div>
+        <div v-if="buyError" class="error-msg">{{ buyError }}</div>
+      </div>
+    </div>
+  </transition>
+
+  <transition name="modal-fade">
+    <div v-if="showSuccessModal" class="modal-overlay">
+      <div class="modal-content animated-modal">
+        <div class="modal-icon modal-success-icon">
+          <svg width="56" height="56" fill="none" viewBox="0 0 56 56">
+            <circle cx="28" cy="28" r="26" stroke="#4caf50" stroke-width="4" fill="#eafaf1" />
+            <path d="M18 29l7 7 13-13" stroke="#4caf50" stroke-width="4" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </div>
+        <h3>Pedido realizado!</h3>
+        <p>
+          <span class="success-text">Seu pedido foi registrado com sucesso.</span><br>
+          Agora você será redirecionado para o WhatsApp para finalizar a compra.
+        </p>
+        <div class="modal-actions">
+          <button @click="goToWhatsapp" class="buy-button">Ir para WhatsApp</button>
+        </div>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script setup lang="ts">
 import { onMounted, ref, computed } from 'vue'
 import { productService } from '../services/productService'
 import type { ProductDTO } from '../dtos/productDto'
-import ProductCard from '../components/ProductCard.vue';
+import ProductCard from '../components/ProductCard.vue'
+import api from '../services/api'
 import SkeletonCard from '../components/skeletons/SkeletonCard.vue';
 
 const mostAcessedProducts = ref<ProductDTO[]>([]);
@@ -81,6 +137,12 @@ const showRemoveModal = ref(false);
 const removeIndex = ref<number | null>(null);
 const isLoadingCart = ref(true);
 const isLoadingOthers = ref(true);
+
+const showBuyModal = ref(false);
+const buyLoading = ref(false);
+const buyError = ref('');
+const showSuccessModal = ref(false);
+let whatsappUrl = '';
 
 function askRemoveItem(index: number) {
   removeIndex.value = index;
@@ -118,7 +180,9 @@ onMounted(async () => {
 
 onMounted(async () => {
   try {
-    const response = await productService.list();
+    const response = await productService.list({
+      limit: 5
+    });
     mostAcessedProducts.value = response.data;
   } catch (error) {
     console.error('Erro ao carregar produtos:', error);
@@ -146,21 +210,59 @@ const totalCartValue = computed(() =>
   products.value.reduce((sum, p) => sum + (p.price * (p.quantity || 1)), 0)
 );
 
-function buy() {
-  const messageItems = products.value.map(product => {
-    const totalItem = (product.price * product.quantity).toFixed(2);
-    return `${product.name}:\nQuantidade: ${product.quantity}\nValor: R$ ${totalItem}`;
-  }).join('\n\n');
+function openBuyModal() {
+  buyError.value = '';
+  showBuyModal.value = true;
+}
+function closeBuyModal() {
+  showBuyModal.value = false;
+  buyError.value = '';
+}
 
-  const totalCompra = totalCartValue.value.toFixed(2);
-  const message = `
+async function confirmBuy() {
+  buyLoading.value = true;
+  buyError.value = '';
+  try {
+    const items = products.value.map(product => ({
+      productId: product.id,
+      quantity: product.quantity
+    }));
+    const token = localStorage.getItem('accessToken');
+    await api.post('/orders', { items }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const messageItems = products.value.map(product => {
+      const totalItem = (product.price * product.quantity).toFixed(2);
+      return `${product.name}:\nQuantidade: ${product.quantity}\nValor: R$ ${totalItem}`;
+    }).join('\n\n');
+    const totalCompra = totalCartValue.value.toFixed(2);
+    const message = `
 Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n\nTotal: R$ ${totalCompra}
 `.trim();
 
-  const whatsappNumber = '5519997585697';
-  const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
+    const whatsappNumber = '5519997585697';
+    whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
 
-  window.open(url, '_blank');
+    products.value = [];
+    localStorage.removeItem('cart');
+    window.dispatchEvent(new Event('storage'));
+
+    showBuyModal.value = false;
+    showSuccessModal.value = true;
+  } catch (e) {
+    buyError.value = 'Erro ao registrar pedido. Verifique se está logado e tente novamente.';
+  } finally {
+    buyLoading.value = false;
+  }
+}
+
+function goToWhatsapp() {
+  showSuccessModal.value = false;
+  window.open(whatsappUrl, '_blank');
 }
 </script>
 
@@ -323,7 +425,6 @@ Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n
   font-size: 1.1rem;
   font-weight: bold;
   cursor: pointer;
-  margin-top: 12px;
   transition: background 0.2s, transform 0.1s;
 }
 
@@ -343,6 +444,7 @@ Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n
   justify-content: space-between;
 }
 
+/* Modal styles and animations */
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -356,21 +458,143 @@ Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n
   z-index: 1000;
 }
 
+.animated-modal {
+  animation: pop-in 0.35s cubic-bezier(.68, -0.55, .27, 1.55);
+}
+
+@keyframes pop-in {
+  0% {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+
+  80% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
 .modal-content {
   background: #fff;
-  border-radius: 12px;
-  padding: 32px 24px 24px 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
-  min-width: 300px;
+  padding: 2.5rem 2rem 2rem 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.13);
+  min-width: 320px;
   max-width: 90vw;
-  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+  align-items: center;
+  position: relative;
+}
+
+.modal-icon {
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: icon-pop 0.5s cubic-bezier(.68, -0.55, .27, 1.55);
+}
+
+@keyframes icon-pop {
+  0% {
+    transform: scale(0.5) rotate(-20deg);
+    opacity: 0;
+  }
+
+  80% {
+    transform: scale(1.1) rotate(5deg);
+    opacity: 1;
+  }
+
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+.modal-confirm-icon svg,
+.modal-success-icon svg,
+.modal-remove-icon svg {
+  display: block;
+}
+
+.success-text {
+  color: #388e3c;
+  font-weight: 600;
 }
 
 .modal-actions {
-  margin-top: 24px;
   display: flex;
-  gap: 16px;
-  justify-content: center;
+  gap: 1rem;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+.modal-actions-row {
+  flex-direction: row;
+  align-items: center;
+}
+
+.buy-button,
+.modal-confirm,
+.modal-cancel {
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+
+.buy-button {
+  background: #4caf50;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(76, 175, 80, 0.08);
+}
+
+.buy-button:hover {
+  background: #388e3c;
+  box-shadow: 0 4px 16px rgba(76, 175, 80, 0.18);
+}
+
+.modal-cancel {
+  background: #bdbdbd;
+  color: #222;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.modal-cancel:hover {
+  background: #888;
+}
+
+.error-msg {
+  color: #e53935;
+  font-size: 0.95rem;
+  margin-top: 0.5rem;
+  text-align: center;
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.3s;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
 }
 
 .modal-confirm {
@@ -386,20 +610,5 @@ Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n
 
 .modal-confirm:hover {
   background: #b71c1c;
-}
-
-.modal-cancel {
-  background: #eee;
-  color: #333;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 18px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.modal-cancel:hover {
-  background: #ccc;
 }
 </style>

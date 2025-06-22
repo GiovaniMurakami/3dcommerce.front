@@ -2,12 +2,17 @@
     <div class="admin-area-outer">
         <div class="admin-area-container">
             <h1 class="admin-title">Área Administrativa</h1>
-            <button class="create-product-btn" @click="goToCreateProduct">
-                Gerenciar Produtos
-            </button>
-            <button class="manage-category-btn" @click="goToManageCategories">
-                Gerenciar Categorias
-            </button>
+            <div class="admin-buttons">
+                <button class="create-product-btn" @click="goToCreateProduct">
+                    Gerenciar Produtos
+                </button>
+                <button class="manage-category-btn" @click="goToManageCategories">
+                    Gerenciar Categorias
+                </button>
+                <button class="manage-orders-btn" @click="goToManageOrders">
+                    Gerenciar Pedidos
+                </button>
+            </div>
         </div>
     </div>
 </template>
@@ -37,6 +42,10 @@ function goToCreateProduct() {
 function goToManageCategories() {
     router.push('/managecategories')
 }
+
+function goToManageOrders() {
+    router.push('/manageOrders')
+}
 </script>
 
 <style scoped>
@@ -56,7 +65,7 @@ function goToManageCategories() {
     padding: 2.5rem 2rem;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-start;
     background: #fff;
     border-radius: 18px;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
@@ -68,11 +77,21 @@ function goToManageCategories() {
     margin-bottom: 2rem;
     color: #2d3a4b;
     letter-spacing: 1px;
-    text-align: center;
+    text-align: left;
+    width: 100%;
+}
+
+.admin-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    gap: 1rem;
 }
 
 .create-product-btn,
-.manage-category-btn {
+.manage-category-btn,
+.manage-orders-btn {
     background: linear-gradient(90deg, #7b9acc 0%, #4caf50 100%);
     color: #fff;
     font-weight: 600;
@@ -83,11 +102,11 @@ function goToManageCategories() {
     font-size: 1.1rem;
     box-shadow: 0 2px 8px rgba(76, 175, 80, 0.08);
     transition: background 0.3s, box-shadow 0.3s;
-    margin-top: 1rem;
 }
 
 .create-product-btn:hover,
-.manage-category-btn:hover {
+.manage-category-btn:hover,
+.manage-orders-btn:hover {
     background: linear-gradient(90deg, #4caf50 0%, #7b9acc 100%);
     box-shadow: 0 4px 16px rgba(76, 175, 80, 0.18);
 }
