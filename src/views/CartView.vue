@@ -42,8 +42,17 @@
     </div>
 
     <div class="cards-container">
-      <ProductCard v-for="product in mostAcessedProducts" :key="product.id" :product="product" />
+      <template v-if="isLoadingOthers">
+        <SkeletonCard v-for="n in 4" :key="n" />
+      </template>
+      <template v-else-if="mostAcessedProducts.length === 0">
+        <p>Nenhum produto encontrado.</p>
+      </template>
+      <template v-else>
+        <ProductCard v-for="product in mostAcessedProducts" :key="product.id" :product="product" />
+      </template>
     </div>
+
   </div>
 
   <transition name="modal-fade">
@@ -120,11 +129,14 @@ import { productService } from '../services/productService'
 import type { ProductDTO } from '../dtos/productDto'
 import ProductCard from '../components/ProductCard.vue'
 import api from '../services/api'
+import SkeletonCard from '../components/skeletons/SkeletonCard.vue';
 
 const mostAcessedProducts = ref<ProductDTO[]>([]);
 const products = ref<ProductDTO[]>([]);
 const showRemoveModal = ref(false);
 const removeIndex = ref<number | null>(null);
+const isLoadingCart = ref(true);
+const isLoadingOthers = ref(true);
 
 const showBuyModal = ref(false);
 const buyLoading = ref(false);
@@ -159,15 +171,26 @@ onMounted(() => {
 });
 
 onMounted(async () => {
-  products.value = JSON.parse(localStorage.getItem('cart') || '[]');
-
   try {
-    const response = await productService.list();
+    products.value = JSON.parse(localStorage.getItem('cart') || '[]');
+  } finally {
+    isLoadingCart.value = false;
+  }
+});
+
+onMounted(async () => {
+  try {
+    const response = await productService.list({
+      limit: 5
+    });
     mostAcessedProducts.value = response.data;
   } catch (error) {
     console.error('Erro ao carregar produtos:', error);
+  } finally {
+    isLoadingOthers.value = false;
   }
 });
+
 
 function increaseQuantity(index: number) {
   products.value[index].quantity = (products.value[index].quantity || 1) + 1;
@@ -231,7 +254,7 @@ Olá, Gostaria de fazer um pedido!\n\nDescrição de itens:\n\n${messageItems}\n
     showBuyModal.value = false;
     showSuccessModal.value = true;
   } catch (e) {
-    buyError.value = 'Erro ao registrar pedido. Tente novamente.';
+    buyError.value = 'Erro ao registrar pedido. Verifique se está logado e tente novamente.';
   } finally {
     buyLoading.value = false;
   }

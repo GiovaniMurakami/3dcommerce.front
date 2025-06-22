@@ -2,7 +2,9 @@
     <div class="orders-outer">
         <div class="orders-container">
             <h1 class="orders-title">Gerenciar Pedidos (Admin)</h1>
-            <div v-if="loading" class="loading">Carregando...</div>
+            <div v-if=loading>
+                <SkeletonOrderItem v-for="n in 1" :key="n" />
+            </div>
             <div v-else>
                 <div v-if="orders.length" class="orders-list">
                     <div v-for="order in orders" :key="order.id" class="order-item">
@@ -56,6 +58,8 @@
                             <span v-if="statusError[order.id]" class="status-error">{{ statusError[order.id] }}</span>
                         </div>
                     </div>
+                    <Pagination :totalItems="totalItems" :itemsPerPage="itemsPerPage" :currentPage="currentPage"
+                    @pageChanged="handlePageChange" />
                 </div>
                 <div v-else>
                     <p>Nenhum pedido encontrado.</p>
@@ -66,8 +70,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, reactive } from 'vue'
+import { ref, reactive, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import api from '../services/api'
+import SkeletonOrderItem from '../components/skeletons/SkeletonOrderItem.vue'
+import Pagination from '../components/Pagination.vue'
 
 const orders = ref([])
 const loading = ref(false)
@@ -75,80 +82,99 @@ const products = ref({})
 const statusLoading = reactive({})
 const statusError = reactive({})
 
+const totalItems = ref(0)
+const itemsPerPage = 5
+const route = useRoute()
+const router = useRouter()
+const currentPage = ref(Number(route.query.page) || 1)
+
 onMounted(fetchOrders)
 
-async function fetchOrders() {
-    loading.value = true
-    try {
-        const token = localStorage.getItem('accessToken')
-        const response = await api.get('/orders', {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-        orders.value = response.data.data || []
+watch(() => route.query.page, (newPage) => {
+  currentPage.value = Number(newPage) || 1
+  fetchOrders()
+})
 
-        // Buscar detalhes dos produtos de todos os pedidos
-        const productIds = [
-            ...new Set(
-                orders.value.flatMap(order =>
-                    order.orderItem.map(item => item.productId)
-                )
-            )
-        ]
-        for (const id of productIds) {
-            try {
-                const prodRes = await api.get(`/products/${id}`)
-                const product = prodRes.data
-                products.value[id] = {
-                    ...product,
-                    mainImageUrl: product.productImages?.find(img => img.type === 'main')?.url || '',
-                }
-            } catch (e) {
-                products.value[id] = {}
-            }
+async function fetchOrders() {
+  loading.value = true
+  try {
+    const token = localStorage.getItem('accessToken')
+    const response = await api.get('/orders', {
+      params: {
+        page: currentPage.value,
+        limit: itemsPerPage
+      },
+      headers: { Authorization: `Bearer ${token}` }
+    })
+    orders.value = response.data.data || []
+    totalItems.value = response.data.total || 0
+
+    const productIds = [
+      ...new Set(
+        orders.value.flatMap(order =>
+          order.orderItem.map(item => item.productId)
+        )
+      )
+    ]
+    for (const id of productIds) {
+      try {
+        const prodRes = await api.get(`/products/${id}`)
+        const product = prodRes.data
+        products.value[id] = {
+          ...product,
+          mainImageUrl: product.productImages?.find(img => img.type === 'main')?.url || '',
         }
-    } catch (e) {
-        orders.value = []
-    } finally {
-        loading.value = false
+      } catch (e) {
+        products.value[id] = {}
+      }
     }
+  } catch (e) {
+    orders.value = []
+  } finally {
+    loading.value = false
+  }
 }
 
 function formatDate(dateStr) {
-    if (!dateStr) return ''
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR')
+  if (!dateStr) return ''
+  const date = new Date(dateStr)
+  return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR')
 }
 
 function statusLabel(status) {
-    switch (status) {
-        case 'WAITING_CONFIRMATION': return 'Aguardando Confirmação'
-        case 'PRINTING': return 'Imprimindo'
-        case 'SHIPPED': return 'Enviado'
-        case 'DELIVERED': return 'Entregue'
-        case 'CANCELED': return 'Cancelado'
-        default: return status
-    }
+  switch (status) {
+    case 'WAITING_CONFIRMATION': return 'Aguardando Confirmação'
+    case 'PRINTING': return 'Imprimindo'
+    case 'SHIPPED': return 'Enviado'
+    case 'DELIVERED': return 'Entregue'
+    case 'CANCELED': return 'Cancelado'
+    default: return status
+  }
 }
 
 async function updateOrderStatus(orderId, newStatus) {
-    statusLoading[orderId] = true
-    statusError[orderId] = ''
-    try {
-        const token = localStorage.getItem('accessToken')
-        await api.patch(`/orders/${orderId}`, { status: newStatus }, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-                'Content-Type': 'application/json'
-            }
-        })
-        // Atualiza localmente o status do pedido
-        const order = orders.value.find(o => o.id === orderId)
-        if (order) order.currentStatus = newStatus
-    } catch (e) {
-        statusError[orderId] = 'Erro ao atualizar status.'
-    } finally {
-        statusLoading[orderId] = false
-    }
+  statusLoading[orderId] = true
+  statusError[orderId] = ''
+  try {
+    const token = localStorage.getItem('accessToken')
+    await api.patch(`/orders/${orderId}`, { status: newStatus }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    const order = orders.value.find(o => o.id === orderId)
+    if (order) order.currentStatus = newStatus
+  } catch (e) {
+    statusError[orderId] = 'Erro ao atualizar status.'
+  } finally {
+    statusLoading[orderId] = false
+  }
+}
+
+function handlePageChange(page) {
+  currentPage.value = page
+  router.replace({ query: { ...route.query, page: page.toString() } })
 }
 </script>
 

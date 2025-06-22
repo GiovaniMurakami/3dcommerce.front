@@ -16,12 +16,23 @@
     <div class="description-section">
       <hr class="divider" />
       <div class="most-accessed-categories">Categorias mais acessadas</div>
-      <ProductImageCarousel :products="categories"/>
+      <ProductImageCarousel :products="categories" />
       <hr class="divider" />
       <div class="best-sellers">Mais acessados</div>
-      <div class="cards-container" v-if="withoutMock">
-        <ProductCard v-for="product in withoutMock" :key="product.id" :product="product" />
+      <div class="cards-container">
+        <template v-if="isLoading">
+          <SkeletonCard v-for="n in 8" :key="n" />
+        </template>
+
+        <template v-else-if="withoutMock?.length === 0">
+          <p>Nenhum produto encontrado.</p>
+        </template>
+
+        <template v-else>
+          <ProductCard v-for="product in withoutMock" :key="product.id" :product="product" />
+        </template>
       </div>
+
 
     </div>
 
@@ -34,39 +45,41 @@ import { useRoute, useRouter } from 'vue-router';
 import { productService } from '../services/productService';
 import { type ListProductDTO, type ListProductsResponse, type ProductDTO } from '../dtos/productDto';
 import ProductImageCarousel from '../components/ProductImageCarousel.vue';
+import SkeletonCard from '../components/skeletons/SkeletonCard.vue';
 import ProductCard from '../components/ProductCard.vue';
 
 const withoutMock = ref<ListProductsResponse | null>(null);
 const categories = ref<ProductDTO[]>([]);
 const router = useRouter();
+const isLoading = ref(true);
 
 onMounted(async () => {
 
-    const capybara = {
+  const capybara = {
     id: 'mock-3',
     name: 'Animes',
     categoryName: 'Animes',
-    productImages: 
-       [{  url: 'https://i.etsystatic.com/50958232/r/il/da0600/5855239846/il_fullxfull.5855239846_bezk.jpg' }]
-    
+    productImages:
+      [{ url: 'https://i.etsystatic.com/50958232/r/il/da0600/5855239846/il_fullxfull.5855239846_bezk.jpg' }]
+
   };
- 
+
   const skull = {
     id: 'mock-3',
     name: 'Animais',
     categoryName: 'Animais',
-    productImages: 
-       [{  url: 'https://things.3dfila.com.br/img/54910.jpg' }]
-    
+    productImages:
+      [{ url: 'https://things.3dfila.com.br/img/54910.jpg' }]
+
   };
 
   const axolot = {
     id: 'mock-3',
     name: 'Jogos',
     categoryName: 'Jogos',
-    productImages: 
-       [{  url: 'https://netrinoimages.s3.eu-west-2.amazonaws.com/2021/09/24/954367/368341/kirby_3d_model_c4d_max_obj_fbx_ma_lwo_3ds_3dm_stl_3822958.jpg' }]
-    
+    productImages:
+      [{ url: 'https://netrinoimages.s3.eu-west-2.amazonaws.com/2021/09/24/954367/368341/kirby_3d_model_c4d_max_obj_fbx_ma_lwo_3ds_3dm_stl_3822958.jpg' }]
+
   };
 
   categories.value = [
@@ -79,10 +92,13 @@ onMounted(async () => {
     const response = await productService.list({
       sortBy: "views",
       sortDir: "desc",
+      limit: 8
     });
-    withoutMock.value = response.data ;
+    withoutMock.value = response.data;
   } catch (error) {
     console.error('Erro ao carregar o produto:', error);
+  } finally {
+    isLoading.value = false;
   }
 });
 </script>

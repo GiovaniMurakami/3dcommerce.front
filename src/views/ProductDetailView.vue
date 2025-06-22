@@ -1,10 +1,14 @@
 <template>
   <div class="page-container">
+    <template v-if="isLoading">
+      <SkeletonProductDetail />
+    </template>
+    <template v-else>
     <div class="product-section">
       <div class="product-images-container">
-      <div class="main-image">
-        <ModelViewer v-if="product && product.fileUrl" :modelPath="product.fileUrl" class="modal-content" />
-      </div>
+        <div class="main-image">
+          <ModelViewer v-if="product && product.fileUrl" :modelPath="product.fileUrl" class="modal-content" />
+        </div>
         <div class="secondary-image-carousel-container">
           <img v-for="image in product?.productImages" :key="image.id" :src="image.url" class="secondary-image" />
         </div>
@@ -13,7 +17,6 @@
         <h1>{{ product?.name }}</h1>
         <p>R$ {{ product?.price }}, valor aproximado para <br> peça de 15cm</p>
         <div class="product-buttons-container">
-          <button class="button">Encomendar</button>
           <button class="cart-button" :class="{ animated: cartButtonAnimated }" @click="addToCart">
             <img src="/icons/add-to-shopping-cart.svg" class="cart-icon">
           </button>
@@ -34,10 +37,21 @@
         <div class="small-title">Outros produtos</div>
       </div>
       <div class="cards-container">
-        <ProductCard v-for="product in mostAcessedProducts" :key="product.id" v-if="mostAcessedProducts"
-          :product="product" />
+        <template v-if="isLoading">
+          <SkeletonCard v-for="n in 4" :key="n" />
+        </template>
+
+        <template v-else-if="mostAcessedProducts?.length === 0">
+          <p>Nenhum produto encontrado.</p>
+        </template>
+
+        <template v-else>
+          <ProductCard v-for="product in mostAcessedProducts" :key="product.id" :product="product" />
+        </template>
       </div>
+
     </div>
+    </template>
   </div>
 </template>
 
@@ -48,10 +62,13 @@ import { productService } from '../services/productService';
 import type { ListProductsResponse, ProductDTO } from '../dtos/productDto';
 import ProductCard from '../components/ProductCard.vue';
 import ModelViewer from '../components/threejs/ModelViewer.vue';
+import SkeletonCard from '../components/skeletons/SkeletonCard.vue';
+import SkeletonProductDetail from '../components/skeletons/SkeletonProductDetail.vue'
 
 const route = useRoute();
 const product = ref<ProductDTO | null>(null);
 const mostAcessedProducts = ref<ListProductsResponse>();
+const isLoading = ref(true);
 
 const cartButtonAnimated = ref(false);
 
@@ -94,6 +111,8 @@ onMounted(async () => {
     mostAcessedProducts.value = response.data;
   } catch (error) {
     console.error('Erro ao carregar o produto:', error);
+  } finally {
+    isLoading.value = false;
   }
 });
 </script>
@@ -143,12 +162,29 @@ onMounted(async () => {
 }
 
 @keyframes cart-bounce {
-  0%   { transform: scale(1); }
-  20%  { transform: scale(1.15); }
-  40%  { transform: scale(0.95); }
-  60%  { transform: scale(1.08); }
-  80%  { transform: scale(0.98); }
-  100% { transform: scale(1); }
+  0% {
+    transform: scale(1);
+  }
+
+  20% {
+    transform: scale(1.15);
+  }
+
+  40% {
+    transform: scale(0.95);
+  }
+
+  60% {
+    transform: scale(1.08);
+  }
+
+  80% {
+    transform: scale(0.98);
+  }
+
+  100% {
+    transform: scale(1);
+  }
 }
 
 .page-container {
@@ -254,7 +290,7 @@ onMounted(async () => {
   border-radius: 12px;
   padding: 0 16px;
   width: fit-content;
-  margin-bottom: 22px;
+  margin-bottom: 16px;
   align-items: center;
   display: flex;
 }
@@ -272,6 +308,7 @@ onMounted(async () => {
   padding: 0 16px;
   width: fit-content;
   align-items: center;
+  margin-bottom: 16px;
 }
 
 .product-description {
