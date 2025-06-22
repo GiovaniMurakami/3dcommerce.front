@@ -5,49 +5,33 @@
 
     <div style="display: flex; margin-bottom: 32px">
       <div class="search-bar">
-        <input 
-          type="text" 
-          v-model="searchTerm"
-          placeholder="Pesquisar..."
-          @input="fetchProducts"
-        />
+        <input type="text" v-model="searchTerm" placeholder="Pesquisar..." @input="fetchProducts" />
       </div>
       <button class="button" @click="router.push('/createproduct')">Criar novo produto</button>
     </div>
 
     <div class="cart-container">
-      <div class="cart-list" v-if="products.length">
+      <div class="cart-list" v-if="isLoading">
+        <SkeletonManageProduct v-for="n in 5" :key="n" />
+      </div>
+
+      <div class="cart-list" v-else-if="products.length">
         <div class="cart-items">
-          <div 
-            v-for="product in products" 
-            :key="product.id" 
-            class="cart-item"
-          >
-            <img 
-              :src="product.mainImageUrl || 'https://via.placeholder.com/60'" 
-              alt="Imagem do produto" 
-              class="cart-image" 
-            />
+          <div v-for="product in products" :key="product.id" class="cart-item">
+            <img :src="product.mainImageUrl || 'https://via.placeholder.com/60'" alt="Imagem do produto"
+              class="cart-image" />
             <div class="cart-details">
               <p class="product-name">{{ product.name }}</p>
               <p class="product-price">R$ {{ (product.price).toFixed(2) }}</p>
               <button class="button" @click="goToEditProduct(product.id)">Editar produto</button>
-              <button 
-                class="button delete" 
-                style="background-color: indianred;" 
-                @click="deleteProduct(product.id)"
-              >
+              <button class="button delete" style="background-color: indianred;" @click="deleteProduct(product.id)">
                 Excluir produto
               </button>
             </div>
           </div>
         </div>
 
-        <Pagination 
-          :totalItems="totalItems" 
-          :itemsPerPage="itemsPerPage" 
-          @pageChanged="handlePageChange" 
-        />
+        <Pagination :totalItems="totalItems" :itemsPerPage="itemsPerPage" @pageChanged="handlePageChange" :currentPage="currentPage"/>
       </div>
 
       <div v-else>
@@ -57,39 +41,58 @@
   </div>
 </template>
 
- 
+
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch  } from 'vue'
 import { productService } from '../services/productService'
 import Pagination from '../components/Pagination.vue'
 import type { ProductDTO } from '../dtos/productDto'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router';
+import SkeletonManageProduct from '../components/skeletons/SkeletonManageProduct.vue'
 
-const router = useRouter()
+const route = useRoute();
+const router = useRouter();
+
 const products = ref<ProductDTO[]>([])
-const currentPage = ref(1)
-const itemsPerPage = 5
+const currentPage = ref(Number(route.query.page) || 1);
 const totalItems = ref(0)
 const searchTerm = ref('')
+const isLoading = ref(true)
+const itemsPerPage = 5;
+
+watch(() => route.query.page, (newPage) => {
+  currentPage.value = Number(newPage) || 1;
+  fetchProducts();
+});
 
 async function fetchProducts() {
+  isLoading.value = true
+
   try {
     const { data, total } = await productService.list({
       page: currentPage.value,
       limit: itemsPerPage,
-      name: searchTerm.value || undefined
+      name: searchTerm.value || undefined,
     })
 
     products.value = data
     totalItems.value = total
   } catch (error) {
     console.error('Erro ao carregar produtos:', error)
+  } finally {
+    isLoading.value = false;
+    console.log('false entao ne');
   }
 }
 
 function handlePageChange(page: number) {
-  currentPage.value = page
-  fetchProducts()
+  currentPage.value = page;
+  router.replace({
+    query: {
+      ...route.query,
+      page: page.toString(),
+    },
+  });
 }
 
 function goToEditProduct(id: string) {
@@ -108,7 +111,7 @@ async function deleteProduct(id: string) {
 onMounted(fetchProducts)
 </script>
 
- 
+
 <style scoped>
 .delete {
   margin-left: 8px;
@@ -132,6 +135,7 @@ onMounted(fetchProducts)
 .description-section {
   margin: 0 10%;
 }
+
 .search-bar {
   flex: 1;
   max-width: 500px;
@@ -160,6 +164,7 @@ onMounted(fetchProducts)
 .search-bar button:hover {
   background-color: #0056b3;
 }
+
 .cart-container {
   display: flex;
   flex-direction: row;
@@ -239,19 +244,19 @@ onMounted(fetchProducts)
 }
 
 .cart-total {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 20px;
 }
 
 .cart-total strong {
-    margin-bottom: 5px;
-    display: block;
+  margin-bottom: 5px;
+  display: block;
 }
 
 .total-value {
-    margin-top: 5px;
+  margin-top: 5px;
 }
 
 .button {

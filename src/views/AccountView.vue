@@ -3,26 +3,30 @@
     <div class="profile-container">
       <h1 class="profile-title">Meu perfil</h1>
 
-      <div class="profile-content">
-        <div class="avatar-box">
-          <img :src="imagePath" alt="Avatar" class="avatar-image" />
+      <SkeletonProfile v-if="loading" />
+
+      <template v-else>
+        <div class="profile-content">
+          <div class="avatar-box">
+            <img :src="imagePath" alt="Avatar" class="avatar-image" />
+          </div>
+
+          <form class="profile-form">
+            <input v-model="user.fullName" type="text" placeholder="Nome completo" class="input" disabled />
+            <input v-model="user.email" type="email" placeholder="Email" class="input" disabled />
+          </form>
         </div>
 
-        <form class="profile-form">
-          <input v-model="user.fullName" type="text" placeholder="Nome completo" class="input" disabled />
-          <input v-model="user.email" type="email" placeholder="Email" class="input" disabled />
-        </form>
-      </div>
-
-      <div class="button-box">
-        <button v-if="user.role === 'ADMIN'" class="admin-button" @click="goToAdmin">
-          Área Administrativa
-        </button>
-        <button v-if="user.role === 'CUSTOMER'" class="orders-button" @click="goToOrders">
-          Ver pedidos
-        </button>
-        <button class="logout-button" @click="logout">Sair</button>
-      </div>
+        <div class="button-box">
+          <button v-if="user.role === 'ADMIN'" class="admin-button" @click="goToAdmin">
+            Área Administrativa
+          </button>
+          <button v-if="user.role === 'CUSTOMER'" class="orders-button" @click="goToOrders">
+            Ver pedidos
+          </button>
+          <button class="logout-button" @click="logout">Sair</button>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -31,9 +35,11 @@
 import { ref, onMounted } from 'vue'
 import api from '../services/api'
 import { useRouter } from 'vue-router'
+import SkeletonProfile from '../components/skeletons/SkeletonProfile.vue'
 import imagePath from '/icons/account.svg'
 
 const router = useRouter()
+const loading = ref(true)
 
 const user = ref({
   fullName: '',
@@ -48,6 +54,7 @@ const user = ref({
 })
 
 async function fetchUser() {
+  loading.value = true
   try {
     const response = await api.get('/me')
     user.value = response.data
@@ -55,6 +62,8 @@ async function fetchUser() {
     localStorage.removeItem('accessToken')
     localStorage.removeItem('refreshToken')
     router.push('/login')
+  } finally {
+    loading.value = false
   }
 }
 

@@ -1,56 +1,52 @@
 <template>
-  <div class="pagination">
-    <button @click="goToPreviousPage" :disabled="currentPage === 1">
+  <div v-if="totalPages > 0" class="pagination">
+    <button @click="goToPreviousPage" :disabled="props.currentPage === 1">
       Anterior
     </button>
 
-    <span>Página {{ currentPage }} de {{ totalPages }}</span>
+    <span>Página {{ props.currentPage }} de {{ totalPages }}</span>
 
-    <button @click="goToNextPage" :disabled="currentPage === totalPages">
+    <button @click="goToNextPage" :disabled="props.currentPage === totalPages">
       Próxima
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { computed } from 'vue';
 
-// Props simulando um total de páginas mockado
-const props = defineProps<{
-  totalItems?: number
-  itemsPerPage?: number
-}>();
+const props = defineProps({
+  currentPage: {
+    type: Number,
+    required: true
+  },
+  totalItems: {
+    type: Number,
+    required: true
+  },
+  itemsPerPage: {
+    type: Number,
+    required: true
+  },
+});
 
-const emit = defineEmits<{
-  (e: 'pageChanged', page: number): void
-}>();
-
-const currentPage = ref(1);
-const totalItems = computed(() => props.totalItems ?? 30);
-const itemsPerPage = computed(() => props.itemsPerPage ?? 5);
+const emit = defineEmits(['pageChanged']);
 
 const totalPages = computed(() =>
-  Math.ceil(totalItems.value / itemsPerPage.value)
+  Math.ceil(props.totalItems / props.itemsPerPage)
 );
 
 function goToPreviousPage() {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-    emit('pageChanged', currentPage.value);
+  if (props.currentPage > 1) {
+    emit('pageChanged', props.currentPage - 1);
   }
 }
 
 function goToNextPage() {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-    emit('pageChanged', currentPage.value);
+  if (props.currentPage < totalPages.value) {
+    emit('pageChanged', props.currentPage + 1);
   }
 }
-
-// Dispara evento inicial na primeira renderização
-watch(currentPage, (newPage) => {
-  emit('pageChanged', newPage);
-}, { immediate: true });
 </script>
 
 <style scoped>
