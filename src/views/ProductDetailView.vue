@@ -46,12 +46,10 @@
           </template>
 
           <template v-else>
-            <div class="product-card-wrapper">
-              <ProductCard v-for="otherProduct in mostAcessedProducts" :key="otherProduct.id" :product="otherProduct"
-                @click="goToProduct(otherProduct.id)" style="cursor:pointer" />
-            </div>
+            <ProductCard v-for="product in mostAcessedProducts" :key="product.id" :product="product" />
           </template>
         </div>
+
       </div>
     </template>
   </div>
@@ -65,12 +63,12 @@ import type { ProductDTO } from '../dtos/productDto';
 import ProductCard from '../components/ProductCard.vue';
 import ModelViewer from '../components/threejs/ModelViewer.vue';
 import SkeletonCard from '../components/skeletons/SkeletonCard.vue';
-import SkeletonProductDetail from '../components/skeletons/SkeletonProductDetail.vue';
+import SkeletonProductDetail from '../components/skeletons/SkeletonProductDetail.vue'
 
 const route = useRoute();
 const router = useRouter();
 const product = ref<ProductDTO | null>(null);
-const mostAcessedProducts = ref<ProductDTO[]>([]);
+const mostAcessedProducts = ref<ListProductsResponse>();
 const isLoading = ref(true);
 
 const cartButtonAnimated = ref(false);

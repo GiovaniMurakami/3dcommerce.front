@@ -235,6 +235,10 @@ async function handleSubmit() {
     cursor: pointer;
 }
 
+.file-button {
+    cursor: pointer;
+}
+
 .input {
     width: 100%;
     padding: 0.75rem;

@@ -169,15 +169,13 @@ watch(() => route.query, (newQuery) => {
 
 .filters-container {
   display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 2.5rem;
+  margin-left: 17%;
+  margin-bottom: 4vh;
   flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 2rem;
-  margin-bottom: 3vh;
-  padding: 0 5vw;
-  background: #fff;
-  border-radius: 14px;
-  box-shadow: 0 2px 12px rgba(31, 38, 135, 0.07);
+  /* caso precise quebrar em telas menores */
 }
 
 .filter {
@@ -188,11 +186,15 @@ watch(() => route.query, (newQuery) => {
   gap: 0.75rem;
   color: #333;
   user-select: none;
-  background: #f7f9fa;
-  border-radius: 10px;
-  padding: 0.7rem 1.2rem;
-  box-shadow: 0 1px 4px rgba(31, 38, 135, 0.04);
-  margin-bottom: 0.5rem;
+}
+
+/* Label (Ordenar:, Categoria:) */
+.filter::before {
+  content: attr(data-label);
+  font-weight: 700;
+  color: #555;
+  margin-right: 0.5rem;
+  white-space: nowrap;
 }
 
 /* Label (Ordenar:, Categoria:) */

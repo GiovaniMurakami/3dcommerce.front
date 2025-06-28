@@ -67,7 +67,14 @@ watch(() => route.query.page, (newPage) => {
   fetchProducts();
 });
 
+watch(() => route.query.page, (newPage) => {
+  currentPage.value = Number(newPage) || 1;
+  fetchProducts();
+});
+
 async function fetchProducts() {
+  isLoading.value = true
+
   isLoading.value = true
 
   try {
@@ -87,6 +94,13 @@ async function fetchProducts() {
 }
 
 function handlePageChange(page: number) {
+  currentPage.value = page;
+  router.replace({
+    query: {
+      ...route.query,
+      page: page.toString(),
+    },
+  });
   currentPage.value = page;
   router.replace({
     query: {
@@ -157,6 +171,7 @@ onMounted(fetchProducts)
   gap: 1.2rem;
 }
 
+
 .search-bar {
   flex: 1;
   max-width: 400px;
@@ -217,6 +232,7 @@ onMounted(fetchProducts)
   gap: 0.5rem;
   margin-top: 10px;
 }
+
 
 .cart-container {
   display: flex;
