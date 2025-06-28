@@ -20,15 +20,17 @@
                 </div>
                 <div class="input-group">
                     <label for="image-file" class="input file-button">Selecione a imagem</label>
-                    <input id="image-file" type="file" style="display:none;" accept="image/*" @change="onImageChange" class="input" required />
+                    <input id="image-file" type="file" style="display:none;" accept="image/*" @change="onImageChange"
+                        class="input" required />
                     <span class="selected-file-name">{{ imageName }}</span>
                 </div>
                 <div class="input-group">
-                    <input class="input" value="main"  style="display:none;" disabled />
+                    <input class="input" value="main" style="display:none;" disabled />
                 </div>
                 <div class="input-group">
                     <label for="stl-file" class="input file-button">Selecione o arquivo STL</label>
-                    <input id="stl-file" type="file" style="display:none;" accept=".stl" @change="onModelChange" class="input" required />
+                    <input id="stl-file" type="file" style="display:none;" accept=".stl" @change="onModelChange"
+                        class="input" required />
                     <span class="selected-file-name">{{ modelName }}</span>
                 </div>
                 <div class="input-group">
@@ -122,27 +124,27 @@ async function createCategory() {
 }
 
 function onImageChange(e) {
-  const input = e.target
-  const file = input.files?.[0]
-  if (!file) {
-    imageName.value = 'Nenhum arquivo selecionado'
-    form.images[0].image = null
-    return
-  }
-  imageName.value = file.name
-  form.images[0].image = file
+    const input = e.target
+    const file = input.files?.[0]
+    if (!file) {
+        imageName.value = 'Nenhum arquivo selecionado'
+        form.images[0].image = null
+        return
+    }
+    imageName.value = file.name
+    form.images[0].image = file
 }
 
 function onModelChange(e) {
-  const input = e.target
-  const file = input.files?.[0]
-  if (!file) {
-    modelName.value = 'Nenhum arquivo selecionado'
-    form.model = null
-    return
-  }
-  modelName.value = file.name
-  form.model = file
+    const input = e.target
+    const file = input.files?.[0]
+    if (!file) {
+        modelName.value = 'Nenhum arquivo selecionado'
+        form.model = null
+        return
+    }
+    modelName.value = file.name
+    form.model = file
 }
 
 async function handleSubmit() {
@@ -198,13 +200,15 @@ async function handleSubmit() {
     border-radius: 18px;
     box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.10);
 }
+
 .selected-file-name {
-  margin-left: 1rem;
-  font-style: italic;
-  color: #555;
-  font-size: 0.9rem;
-  user-select: text;
+    margin-left: 1rem;
+    font-style: italic;
+    color: #555;
+    font-size: 0.9rem;
+    user-select: text;
 }
+
 .create-product-title {
     font-size: 2rem;
     font-weight: bold;
@@ -225,6 +229,10 @@ async function handleSubmit() {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+}
+
+.file-button {
+    cursor: pointer;
 }
 
 .file-button {
@@ -352,17 +360,21 @@ async function handleSubmit() {
 }
 
 .cancel-btn {
-    background: #bdbdbd;
-    color: #222;
+    background: #e53935;
+    color: #fff;
     border: none;
-    border-radius: 6px;
-    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    padding: 0.85rem;
     cursor: pointer;
     font-weight: 600;
+    font-size: 1.1rem;
     transition: background 0.2s;
+    width: 100%;
+    margin-top: 0.5rem;
+    box-sizing: border-box;
 }
 
 .cancel-btn:hover {
-    background: #888;
+    background: #b71c1c;
 }
 </style>

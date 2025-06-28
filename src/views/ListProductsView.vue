@@ -36,7 +36,8 @@
         </template>
       </div>
 
-      <Pagination :totalItems="totalItems" :itemsPerPage="itemsPerPage" @pageChanged="handlePageChange"   :currentPage="currentPage"/>
+      <Pagination :totalItems="totalItems" :itemsPerPage="itemsPerPage" @pageChanged="handlePageChange"
+        :currentPage="currentPage" />
     </div>
   </div>
 </template>
@@ -136,7 +137,6 @@ watch(() => route.query, (newQuery) => {
 </script>
 
 <style scoped>
-
 .input {
   width: 100%;
   padding: 0.75rem;
@@ -174,7 +174,8 @@ watch(() => route.query, (newQuery) => {
   gap: 2.5rem;
   margin-left: 17%;
   margin-bottom: 4vh;
-  flex-wrap: wrap; /* caso precise quebrar em telas menores */
+  flex-wrap: wrap;
+  /* caso precise quebrar em telas menores */
 }
 
 .filter {
@@ -194,6 +195,56 @@ watch(() => route.query, (newQuery) => {
   color: #555;
   margin-right: 0.5rem;
   white-space: nowrap;
+}
+
+/* Label (Ordenar:, Categoria:) */
+.filter::before {
+  content: attr(data-label);
+  font-weight: 700;
+  color: #555;
+  margin-right: 0.5rem;
+  white-space: nowrap;
+}
+
+.input {
+  width: 180px;
+  padding: 0.65rem 1rem;
+  background-color: #e5e5e5;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s, background 0.3s, box-shadow 0.2s;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.input:hover {
+  background-color: #f0f0f0;
+}
+
+.input:focus {
+  background-color: #dcdcdc;
+  border-color: #7b9acc;
+  box-shadow: 0 0 0 2px #7b9acc33;
+}
+
+@media (max-width: 900px) {
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.2rem;
+    padding: 0 2vw;
+  }
+
+  .filter {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .input {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 /* Remove o texto antigo e usa data-label no HTML */

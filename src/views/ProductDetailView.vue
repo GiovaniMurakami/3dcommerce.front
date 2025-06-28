@@ -4,68 +4,69 @@
       <SkeletonProductDetail />
     </template>
     <template v-else>
-    <div class="product-section">
-      <div class="product-images-container">
-        <div class="main-image">
-          <ModelViewer v-if="product && product.fileUrl" :modelPath="product.fileUrl" class="modal-content" />
+      <div class="product-section">
+        <div class="product-images-container">
+          <div class="main-image">
+            <ModelViewer v-if="product && product.fileUrl" :modelPath="product.fileUrl" class="modal-content" />
+          </div>
+          <div class="secondary-image-carousel-container">
+            <img v-for="image in product?.productImages" :key="image.id" :src="image.url" class="secondary-image" />
+          </div>
         </div>
-        <div class="secondary-image-carousel-container">
-          <img v-for="image in product?.productImages" :key="image.id" :src="image.url" class="secondary-image" />
+        <div class="product-info-container">
+          <h1>{{ product?.name }}</h1>
+          <p>R$ {{ product?.price }}, valor aproximado para <br> peça de 15cm</p>
+          <div class="product-buttons-container">
+            <button class="cart-button" :class="{ animated: cartButtonAnimated }" @click="addToCart">
+              <img src="/icons/add-to-shopping-cart.svg" class="cart-icon">
+            </button>
+          </div>
         </div>
       </div>
-      <div class="product-info-container">
-        <h1>{{ product?.name }}</h1>
-        <p>R$ {{ product?.price }}, valor aproximado para <br> peça de 15cm</p>
-        <div class="product-buttons-container">
-          <button class="cart-button" :class="{ animated: cartButtonAnimated }" @click="addToCart">
-            <img src="/icons/add-to-shopping-cart.svg" class="cart-icon">
-          </button>
-        </div>
-      </div>
-    </div>
-    <div class="description-section">
-      <hr class="divider" />
-      <div class="product-description">
-        <div class="medium-title">
-          <img src="/icons/note-text.svg" alt="Ícone" class="description-icon" />
-          Descrição do produto
-        </div>
-        <p>{{ product?.description }}</p>
-      </div>
-      <div class="another-products-section">
+      <div class="description-section">
         <hr class="divider" />
-        <div class="small-title">Outros produtos</div>
+        <div class="product-description">
+          <div class="medium-title">
+            <img src="/icons/note-text.svg" alt="Ícone" class="description-icon" />
+            Descrição do produto
+          </div>
+          <p>{{ product?.description }}</p>
+        </div>
+        <div class="another-products-section">
+          <hr class="divider" />
+          <div class="small-title">Outros produtos</div>
+        </div>
+        <div class="cards-container">
+          <template v-if="isLoading">
+            <SkeletonCard v-for="n in 4" :key="n" />
+          </template>
+
+          <template v-else-if="mostAcessedProducts?.length === 0">
+            <p>Nenhum produto encontrado.</p>
+          </template>
+
+          <template v-else>
+            <ProductCard v-for="product in mostAcessedProducts" :key="product.id" :product="product" />
+          </template>
+        </div>
+
       </div>
-      <div class="cards-container">
-        <template v-if="isLoading">
-          <SkeletonCard v-for="n in 4" :key="n" />
-        </template>
-
-        <template v-else-if="mostAcessedProducts?.length === 0">
-          <p>Nenhum produto encontrado.</p>
-        </template>
-
-        <template v-else>
-          <ProductCard v-for="product in mostAcessedProducts" :key="product.id" :product="product" />
-        </template>
-      </div>
-
-    </div>
     </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { onMounted, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { productService } from '../services/productService';
-import type { ListProductsResponse, ProductDTO } from '../dtos/productDto';
+import type { ProductDTO } from '../dtos/productDto';
 import ProductCard from '../components/ProductCard.vue';
 import ModelViewer from '../components/threejs/ModelViewer.vue';
 import SkeletonCard from '../components/skeletons/SkeletonCard.vue';
 import SkeletonProductDetail from '../components/skeletons/SkeletonProductDetail.vue'
 
 const route = useRoute();
+const router = useRouter();
 const product = ref<ProductDTO | null>(null);
 const mostAcessedProducts = ref<ListProductsResponse>();
 const isLoading = ref(true);
@@ -98,9 +99,14 @@ const addToCart = () => {
   }, 600);
 };
 
-onMounted(async () => {
-  const id = route.params.id as string;
+function goToProduct(id: string) {
+  if (id === product.value?.id) return;
+  router.push({ name: 'ProductDetailView', params: { id } });
+}
 
+async function loadProduct() {
+  isLoading.value = true;
+  const id = route.params.id as string;
   try {
     product.value = await productService.getById(id);
     const response = await productService.list({
@@ -108,13 +114,23 @@ onMounted(async () => {
       sortBy: "views",
       sortDir: "desc"
     });
-    mostAcessedProducts.value = response.data;
+    mostAcessedProducts.value = (response.data || []).filter(p => p.id !== id);
   } catch (error) {
     console.error('Erro ao carregar o produto:', error);
   } finally {
     isLoading.value = false;
   }
-});
+}
+
+onMounted(loadProduct);
+
+watch(
+  () => route.params.id,
+  async () => {
+    await loadProduct();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+);
 </script>
 
 <style scoped>
@@ -124,6 +140,14 @@ onMounted(async () => {
 }
 
 .cards-container {
+  display: flex;
+  gap: 2vw;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+.product-card-wrapper {
+  cursor: pointer;
   display: flex;
   gap: 2vw;
   flex-wrap: wrap;
