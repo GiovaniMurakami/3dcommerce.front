@@ -36,7 +36,8 @@
         </template>
       </div>
 
-      <Pagination :totalItems="totalItems" :itemsPerPage="itemsPerPage" @pageChanged="handlePageChange"   :currentPage="currentPage"/>
+      <Pagination :totalItems="totalItems" :itemsPerPage="itemsPerPage" @pageChanged="handlePageChange"
+        :currentPage="currentPage" />
     </div>
   </div>
 </template>
@@ -136,7 +137,6 @@ watch(() => route.query, (newQuery) => {
 </script>
 
 <style scoped>
-
 .input {
   width: 100%;
   padding: 0.75rem;
@@ -169,12 +169,15 @@ watch(() => route.query, (newQuery) => {
 
 .filters-container {
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  gap: 2.5rem;
-  margin-left: 17%;
-  margin-bottom: 4vh;
-  flex-wrap: wrap; /* caso precise quebrar em telas menores */
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 2rem;
+  margin-bottom: 3vh;
+  padding: 0 5vw;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(31, 38, 135, 0.07);
 }
 
 .filter {
@@ -185,6 +188,11 @@ watch(() => route.query, (newQuery) => {
   gap: 0.75rem;
   color: #333;
   user-select: none;
+  background: #f7f9fa;
+  border-radius: 10px;
+  padding: 0.7rem 1.2rem;
+  box-shadow: 0 1px 4px rgba(31, 38, 135, 0.04);
+  margin-bottom: 0.5rem;
 }
 
 /* Label (Ordenar:, Categoria:) */
@@ -194,6 +202,47 @@ watch(() => route.query, (newQuery) => {
   color: #555;
   margin-right: 0.5rem;
   white-space: nowrap;
+}
+
+.input {
+  width: 180px;
+  padding: 0.65rem 1rem;
+  background-color: #e5e5e5;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.3s, background 0.3s, box-shadow 0.2s;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.input:hover {
+  background-color: #f0f0f0;
+}
+
+.input:focus {
+  background-color: #dcdcdc;
+  border-color: #7b9acc;
+  box-shadow: 0 0 0 2px #7b9acc33;
+}
+
+@media (max-width: 900px) {
+  .filters-container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1.2rem;
+    padding: 0 2vw;
+  }
+
+  .filter {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .input {
+    width: 100%;
+    min-width: 0;
+  }
 }
 
 /* Remove o texto antigo e usa data-label no HTML */
